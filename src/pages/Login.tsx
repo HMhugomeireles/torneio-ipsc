@@ -20,14 +20,17 @@ export default function Login() {
   }
 
   return (
-    <form onSubmit={submit} className="mx-auto mt-16 flex max-w-sm flex-col gap-3 p-4">
-      <h1 className="text-xl font-bold">Acesso de juiz</h1>
-      <input className="rounded bg-neutral-800 p-3" type="email" placeholder="Email"
+    <form onSubmit={submit} className="tactical-panel relative mx-auto mt-16 flex max-w-sm flex-col gap-3 p-6">
+      <div className="absolute top-0 left-0 h-1.5 w-full bg-[repeating-linear-gradient(-45deg,#d97706,#d97706_10px,#0f1216_10px,#0f1216_20px)] opacity-50" />
+      <h1 className="mt-2 text-xl font-black uppercase tracking-widest text-bullet-text">Acesso de juiz</h1>
+      <input className="tactical-input normal-case" type="email" placeholder="Email"
         value={email} onChange={e => setEmail(e.target.value)} required />
-      <input className="rounded bg-neutral-800 p-3" type="password" placeholder="Password"
+      <input className="tactical-input" type="password" placeholder="Password"
         value={password} onChange={e => setPassword(e.target.value)} required />
-      {error && <p className="text-red-400 text-sm">{error}</p>}
-      <button disabled={busy} className="rounded bg-blue-600 p-3 font-bold disabled:opacity-50">
+      {error && <p className="border border-red-500 bg-red-500/10 p-2 text-sm uppercase tracking-widest text-red-500">{error}</p>}
+      <button disabled={busy}
+        className="relative cursor-pointer overflow-hidden bg-bullet-accent p-3 font-bold uppercase tracking-[0.2em] text-bullet-dark transition-colors duration-300 hover:bg-white hover:text-black disabled:cursor-not-allowed disabled:opacity-50"
+        style={{ clipPath: 'polygon(4% 0, 100% 0, 100% 70%, 96% 100%, 0 100%, 0 30%)' }}>
         {busy ? 'A entrar…' : 'Entrar'}
       </button>
     </form>

@@ -33,40 +33,40 @@ export default function Gestao() {
 
   return (
     <div className="flex flex-col gap-8">
-      <h1 className="text-2xl font-bold">Gestão</h1>
-      {error && <p className="text-red-400">{error}</p>}
+      <h1 className="text-2xl font-black uppercase tracking-widest">Gestão</h1>
+      {error && <p className="border border-red-500 bg-red-500/10 p-2 uppercase tracking-widest text-red-500">{error}</p>}
 
       <section>
-        <h2 className="mb-2 font-bold">Jogadores</h2>
+        <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-bullet-accent">Jogadores</h2>
         <div className="flex gap-2">
-          <input className="flex-1 rounded bg-neutral-800 p-2" value={playerName}
+          <input className="tactical-input flex-1" value={playerName}
             onChange={e => setPlayerName(e.target.value)} placeholder="Nome do jogador" />
-          <button onClick={addPlayer} className="rounded bg-blue-600 px-4 font-bold">Adicionar</button>
+          <button onClick={addPlayer} className="cursor-pointer bg-bullet-accent px-4 font-bold uppercase tracking-widest text-bullet-dark transition-colors hover:bg-white hover:text-black">Adicionar</button>
         </div>
-        <ul className="mt-2 divide-y divide-neutral-800">
+        <ul className="mt-2 divide-y divide-white/10">
           {players.map(p => (
             <li key={p.id} className="flex items-center justify-between py-2">
-              <span>{p.name}</span>
+              <span className="uppercase tracking-wider">{p.name}</span>
               <button onClick={async () => { try { await data.deletePlayer(p.id); reload() } catch (e) { setError(String(e)) } }}
-                className="text-sm text-red-400">Remover</button>
+                className="cursor-pointer border border-red-500 px-3 py-1 text-xs font-bold uppercase tracking-widest text-red-500 transition-colors hover:bg-red-500 hover:text-white">Remover</button>
             </li>
           ))}
         </ul>
       </section>
 
       <section>
-        <h2 className="mb-2 font-bold">Juízes</h2>
+        <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-bullet-accent">Juízes</h2>
         <div className="flex gap-2">
-          <input className="flex-1 rounded bg-neutral-800 p-2" value={judgeName}
+          <input className="tactical-input flex-1" value={judgeName}
             onChange={e => setJudgeName(e.target.value)} placeholder="Nome do juiz" />
-          <button onClick={addJudge} className="rounded bg-blue-600 px-4 font-bold">Adicionar</button>
+          <button onClick={addJudge} className="cursor-pointer bg-bullet-accent px-4 font-bold uppercase tracking-widest text-bullet-dark transition-colors hover:bg-white hover:text-black">Adicionar</button>
         </div>
-        <ul className="mt-2 divide-y divide-neutral-800">
+        <ul className="mt-2 divide-y divide-white/10">
           {judges.map(j => (
             <li key={j.id} className="flex items-center justify-between py-2">
-              <span>{j.name}</span>
+              <span className="uppercase tracking-wider">{j.name}</span>
               <button onClick={async () => { try { setError(null); await data.deleteJudge(j.id); reload() } catch { setError('Não é possível remover um juiz com resultados registados.') } }}
-                className="text-sm text-red-400">Remover</button>
+                className="cursor-pointer border border-red-500 px-3 py-1 text-xs font-bold uppercase tracking-widest text-red-500 transition-colors hover:bg-red-500 hover:text-white">Remover</button>
             </li>
           ))}
         </ul>
@@ -74,17 +74,17 @@ export default function Gestao() {
 
       {settings && (
         <section>
-          <h2 className="mb-2 font-bold">Definições</h2>
-          <label className="flex items-center gap-2">
+          <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-bullet-accent">Definições</h2>
+          <label className="flex items-center gap-2 uppercase tracking-widest text-bullet-muted">
             Segundos por defeito (arma única):
-            <input type="number" className="w-24 rounded bg-neutral-800 p-2"
+            <input type="number" className="tactical-input w-24"
               value={settings.default_single_weapon_seconds}
               onChange={e => { const n = Number(e.target.value); setSettings({ ...settings, default_single_weapon_seconds: Number.isFinite(n) ? n : 0 }) }}
               onBlur={() => saveSettings({ default_single_weapon_seconds: settings.default_single_weapon_seconds })} />
           </label>
           <div className="mt-3 grid gap-2">
             {settings.stage_names.map((name, i) => (
-              <input key={i} className="rounded bg-neutral-800 p-2" value={name}
+              <input key={i} className="tactical-input" value={name}
                 onChange={e => {
                   const next = [...settings.stage_names]; next[i] = e.target.value
                   setSettings({ ...settings, stage_names: next })

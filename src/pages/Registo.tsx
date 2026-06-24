@@ -87,26 +87,26 @@ export default function Registo() {
 
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-2xl font-bold">Registo de estágio</h1>
+      <h1 className="text-2xl font-black uppercase tracking-widest">Registo de estágio</h1>
 
       <div className="grid gap-2">
-        <select className="rounded bg-neutral-800 p-3" value={playerId} onChange={e => setPlayerId(e.target.value)}>
+        <select className="tactical-input" value={playerId} onChange={e => setPlayerId(e.target.value)}>
           <option value="">— Jogador —</option>
           {players.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
         </select>
         <div className="flex gap-2">
-          <select className="flex-1 rounded bg-neutral-800 p-3" value={judgeId} onChange={e => setJudgeId(e.target.value)}>
+          <select className="tactical-input flex-1" value={judgeId} onChange={e => setJudgeId(e.target.value)}>
             <option value="">— Juiz —</option>
             {judges.map(j => <option key={j.id} value={j.id}>{j.name}</option>)}
           </select>
-          <select className="flex-1 rounded bg-neutral-800 p-3" value={stage} onChange={e => setStage(Number(e.target.value))}>
+          <select className="tactical-input flex-1" value={stage} onChange={e => setStage(Number(e.target.value))}>
             {[1, 2, 3, 4].map(n => <option key={n} value={n}>{settings?.stage_names[n - 1] ?? `Estágio ${n}`}</option>)}
           </select>
         </div>
         <div className="flex gap-2">
           {(['maior', 'menor'] as Factor[]).map(f => (
             <button key={f} onClick={() => setFactor(f)}
-              className={`flex-1 rounded p-3 font-bold ${factor === f ? 'bg-blue-600' : 'bg-neutral-800'}`}>
+              className={`flex-1 cursor-pointer border p-3 font-bold uppercase tracking-widest transition-colors ${factor === f ? 'border-bullet-accent bg-bullet-accent text-bullet-dark' : 'border-white/10 bg-black/40 text-bullet-muted hover:text-bullet-text'}`}>
               Fator {f === 'maior' ? 'Maior' : 'Menor'}
             </button>
           ))}
@@ -114,7 +114,7 @@ export default function Registo() {
       </div>
 
       <div>
-        <div className="mb-1 text-xs uppercase tracking-wider text-neutral-400">Pontos</div>
+        <div className="mb-1 text-xs uppercase tracking-widest text-bullet-muted">Pontos</div>
         <div className="grid gap-2">
           <Counter label="ALPHA" sublabel="5 pts" value={counts.alpha} onChange={v => set('alpha', v)} />
           <Counter label="CHARLIE" sublabel={`${charliePts} pts`} value={counts.charlie} onChange={v => set('charlie', v)} />
@@ -124,7 +124,7 @@ export default function Registo() {
       </div>
 
       <div>
-        <div className="mb-1 text-xs uppercase tracking-wider text-neutral-400">Penalizações (−10 cada)</div>
+        <div className="mb-1 text-xs uppercase tracking-widest text-bullet-muted">Penalizações (−10 cada)</div>
         <div className="grid gap-2">
           <Counter variant="penalty" label="Miss / Falha" value={counts.pen_miss} onChange={v => set('pen_miss', v)} />
           <Counter variant="penalty" label="No-shoot" value={counts.pen_no_shoot} onChange={v => set('pen_no_shoot', v)} />
@@ -133,19 +133,19 @@ export default function Registo() {
         </div>
       </div>
 
-      <div className="rounded-lg border border-neutral-700 bg-neutral-900 p-3">
-        <label className="flex items-center gap-2">
+      <div className="tactical-panel p-3">
+        <label className="flex items-center gap-2 uppercase tracking-widest text-bullet-muted">
           Tempo (seg):
-          <input type="number" step="0.01" className="w-28 rounded bg-neutral-800 p-2"
+          <input type="number" step="0.01" className="tactical-input w-28"
             value={timeSeconds} onChange={e => { const n = Number(e.target.value); setTimeSeconds(Number.isFinite(n) ? n : 0) }} />
         </label>
-        <label className="mt-3 flex items-center gap-2">
-          <input type="checkbox" checked={singleWeapon} onChange={e => setSingleWeapon(e.target.checked)} />
+        <label className="mt-3 flex items-center gap-2 uppercase tracking-widest text-bullet-muted">
+          <input type="checkbox" className="accent-bullet-accent" checked={singleWeapon} onChange={e => setSingleWeapon(e.target.checked)} />
           Arma única
           {singleWeapon && (
             <>
-              <span className="ml-auto">+</span>
-              <input type="number" className="w-20 rounded bg-neutral-800 p-2"
+              <span className="ml-auto text-bullet-accent">+</span>
+              <input type="number" className="tactical-input w-20"
                 value={singleWeaponSeconds} onChange={e => { const n = Number(e.target.value); setSingleWeaponSeconds(Number.isFinite(n) ? n : 0) }} />
               <span>seg</span>
             </>
@@ -153,14 +153,16 @@ export default function Registo() {
         </label>
       </div>
 
-      <div className="flex justify-between rounded-lg border border-blue-600 bg-blue-950/40 p-3 font-bold">
-        <span>Pts: {preview.pts}</span>
-        <span>Tempo: {preview.t.toFixed(2)}s</span>
-        <span>HF: {preview.hf.toFixed(2)}</span>
+      <div className="glow-orange flex justify-between border border-bullet-accent bg-black/60 p-3 font-bold uppercase tracking-widest">
+        <span>Pts: <span className="text-bullet-accent">{preview.pts}</span></span>
+        <span>Tempo: <span className="text-bullet-accent">{preview.t.toFixed(2)}s</span></span>
+        <span>HF: <span className="text-bullet-accent">{preview.hf.toFixed(2)}</span></span>
       </div>
 
-      {status && <p className="text-center">{status}</p>}
-      <button onClick={save} className="rounded-lg bg-blue-600 p-4 text-lg font-extrabold">Guardar estágio</button>
+      {status && <p className="text-center uppercase tracking-widest text-bullet-text">{status}</p>}
+      <button onClick={save}
+        className="relative cursor-pointer overflow-hidden bg-bullet-accent p-4 text-lg font-bold uppercase tracking-[0.2em] text-bullet-dark transition-colors duration-300 hover:bg-white hover:text-black"
+        style={{ clipPath: 'polygon(3% 0, 100% 0, 100% 70%, 97% 100%, 0 100%, 0 30%)' }}>Guardar estágio</button>
     </div>
   )
 }
