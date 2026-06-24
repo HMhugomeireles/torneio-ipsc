@@ -26,7 +26,7 @@ insert into public.tournament_settings (id) values (1)
 create table if not exists public.stage_results (
   id uuid primary key default gen_random_uuid(),
   player_id uuid not null references public.players(id) on delete cascade,
-  judge_id uuid not null references public.judges(id),
+  judge_id uuid not null references public.judges(id) on delete restrict,
   stage int not null check (stage between 1 and 4),
   factor text not null check (factor in ('maior','menor')),
   alpha int not null default 0,

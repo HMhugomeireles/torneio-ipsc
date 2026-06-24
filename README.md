@@ -20,7 +20,7 @@ App de resultados para um torneio de tiro airsoft estilo IPSC (4 estágios, Hit 
 1. Faz push do repositório para o GitHub.
 2. Importa o repo na Vercel (framework: Vite).
 3. Em Settings → Environment Variables, adiciona `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY`.
-4. Deploy. (SPA: a Vercel serve `index.html` para todas as rotas por defeito com Vite.)
+4. Deploy. O ficheiro `vercel.json` (incluído) reescreve todas as rotas para `index.html` (necessário para o routing client-side da SPA).
 
 ## Páginas
 

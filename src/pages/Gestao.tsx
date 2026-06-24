@@ -47,7 +47,7 @@ export default function Gestao() {
           {players.map(p => (
             <li key={p.id} className="flex items-center justify-between py-2">
               <span>{p.name}</span>
-              <button onClick={async () => { await data.deletePlayer(p.id); reload() }}
+              <button onClick={async () => { try { await data.deletePlayer(p.id); reload() } catch (e) { setError(String(e)) } }}
                 className="text-sm text-red-400">Remover</button>
             </li>
           ))}
@@ -65,7 +65,7 @@ export default function Gestao() {
           {judges.map(j => (
             <li key={j.id} className="flex items-center justify-between py-2">
               <span>{j.name}</span>
-              <button onClick={async () => { await data.deleteJudge(j.id); reload() }}
+              <button onClick={async () => { try { setError(null); await data.deleteJudge(j.id); reload() } catch { setError('Não é possível remover um juiz com resultados registados.') } }}
                 className="text-sm text-red-400">Remover</button>
             </li>
           ))}
@@ -79,7 +79,7 @@ export default function Gestao() {
             Segundos por defeito (arma única):
             <input type="number" className="w-24 rounded bg-neutral-800 p-2"
               value={settings.default_single_weapon_seconds}
-              onChange={e => setSettings({ ...settings, default_single_weapon_seconds: Number(e.target.value) })}
+              onChange={e => { const n = Number(e.target.value); setSettings({ ...settings, default_single_weapon_seconds: Number.isFinite(n) ? n : 0 }) }}
               onBlur={() => saveSettings({ default_single_weapon_seconds: settings.default_single_weapon_seconds })} />
           </label>
           <div className="mt-3 grid gap-2">

@@ -137,7 +137,7 @@ export default function Registo() {
         <label className="flex items-center gap-2">
           Tempo (seg):
           <input type="number" step="0.01" className="w-28 rounded bg-neutral-800 p-2"
-            value={timeSeconds} onChange={e => setTimeSeconds(Number(e.target.value))} />
+            value={timeSeconds} onChange={e => { const n = Number(e.target.value); setTimeSeconds(Number.isFinite(n) ? n : 0) }} />
         </label>
         <label className="mt-3 flex items-center gap-2">
           <input type="checkbox" checked={singleWeapon} onChange={e => setSingleWeapon(e.target.checked)} />
@@ -146,7 +146,7 @@ export default function Registo() {
             <>
               <span className="ml-auto">+</span>
               <input type="number" className="w-20 rounded bg-neutral-800 p-2"
-                value={singleWeaponSeconds} onChange={e => setSingleWeaponSeconds(Number(e.target.value))} />
+                value={singleWeaponSeconds} onChange={e => { const n = Number(e.target.value); setSingleWeaponSeconds(Number.isFinite(n) ? n : 0) }} />
               <span>seg</span>
             </>
           )}
