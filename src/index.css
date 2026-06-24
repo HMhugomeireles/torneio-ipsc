@@ -1,0 +1,18 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root { color-scheme: dark; }
+body { @apply bg-bullet-dark text-bullet-text font-mono antialiased; }
+
+@layer components {
+  .tactical-input {
+    @apply bg-black/40 border border-white/10 uppercase tracking-wider px-3 py-2 outline-none focus:border-bullet-accent transition-colors;
+  }
+  .tactical-panel {
+    @apply bg-black/60 border border-white/10;
+  }
+  .glow-orange {
+    box-shadow: 0 0 15px rgba(217, 119, 6, 0.3);
+  }
+}
