@@ -1,11 +1,11 @@
 import { createClient } from '@supabase/supabase-js'
 
 const url = import.meta.env.VITE_SUPABASE_URL as string
-const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string
+const publishableKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string
 
-if (!url || !anonKey) {
+if (!url || !publishableKey) {
   // Fail loud in dev so misconfiguration is obvious.
-  console.error('Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY')
+  console.error('Missing VITE_SUPABASE_URL or VITE_SUPABASE_PUBLISHABLE_KEY')
 }
 
-export const supabase = createClient(url, anonKey)
+export const supabase = createClient(url, publishableKey)
