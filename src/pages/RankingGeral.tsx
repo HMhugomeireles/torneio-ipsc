@@ -6,7 +6,7 @@ import { overallRanking } from '../lib/scoring'
 export default function RankingGeral() {
   const [results, setResults] = useState<StageResult[]>([])
   const [players, setPlayers] = useState<Player[]>([])
-  const [settings, setSettings] = useState<TournamentSettings | null>(null)
+  const [, setSettings] = useState<TournamentSettings | null>(null)
 
   useEffect(() => {
     (async () => {
@@ -20,17 +20,17 @@ export default function RankingGeral() {
 
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-2xl font-black uppercase tracking-widest">Ranking geral</h1>
+      <h1 className="text-2xl font-black uppercase tracking-widest">Overall Ranking</h1>
       {rows.length === 0
-        ? <p className="uppercase tracking-widest text-bullet-muted">Ainda não há jogadores.</p>
+        ? <p className="uppercase tracking-widest text-bullet-muted">No players yet.</p>
         : (
           <div className="tactical-panel overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-left text-xs uppercase tracking-widest text-bullet-muted">
-                  <th className="px-3 py-2">#</th><th className="px-3 py-2">Jogador</th>
+                  <th className="px-3 py-2">#</th><th className="px-3 py-2">Player</th>
                   {[1, 2, 3, 4].map(n => (
-                    <th key={n} className="px-3 py-2 text-right">{settings?.stage_names[n - 1]?.replace('Estágio', 'E') ?? `E${n}`}</th>
+                    <th key={n} className="px-3 py-2 text-right">S{n}</th>
                   ))}
                   <th className="px-3 py-2 text-right text-bullet-accent">Total</th><th className="px-3 py-2 text-right">%</th>
                 </tr>

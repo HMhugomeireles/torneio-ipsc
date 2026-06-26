@@ -15,7 +15,7 @@ create table if not exists public.judges (
 -- Single-row settings
 create table if not exists public.tournament_settings (
   id int primary key default 1,
-  stage_names jsonb not null default '["Estágio 1","Estágio 2","Estágio 3","Estágio 4"]'::jsonb,
+  stage_names jsonb not null default '["Stage 1","Stage 2","Stage 3","Stage 4"]'::jsonb,
   default_single_weapon_seconds numeric not null default 10,
   constraint single_row check (id = 1)
 );
@@ -28,7 +28,7 @@ create table if not exists public.stage_results (
   player_id uuid not null references public.players(id) on delete cascade,
   judge_id uuid not null references public.judges(id) on delete restrict,
   stage int not null check (stage between 1 and 4),
-  factor text not null check (factor in ('maior','menor')),
+  factor text not null check (factor in ('major','minor')),
   alpha int not null default 0,
   charlie int not null default 0,
   delta int not null default 0,

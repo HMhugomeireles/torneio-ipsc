@@ -1,29 +1,29 @@
-# Torneio IPSC — Site de Resultados
+# IPSC Tournament — Results Site
 
-App de resultados para um torneio de tiro airsoft estilo IPSC (4 estágios, Hit Factor).
+Results app for an IPSC-style airsoft shooting tournament (4 stages, Hit Factor).
 
 ## Setup
 
-1. Cria um projeto Supabase. No SQL Editor, corre `supabase/schema.sql`.
-2. Em Authentication → Users, cria um utilizador (email + password) — é o login partilhado dos juízes.
-3. Copia `.env.example` para `.env` e preenche `VITE_SUPABASE_URL` e `VITE_SUPABASE_PUBLISHABLE_KEY`
-   (Project Settings → API Keys → **Publishable key**, formato `sb_publishable_...`; substitui a antiga `anon` key,
-   já em descontinuação). Tem os mesmos privilégios baixos, por isso as policies RLS comportam-se igual.
+1. Create a Supabase project. In the SQL Editor, run `supabase/schema.sql`.
+2. In Authentication → Users, create a user (email + password) — this is the shared judges' login.
+3. Copy `.env.example` to `.env` and fill in `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY`
+   (Project Settings → API Keys → **Publishable key**, in the `sb_publishable_...` format; it replaces the old `anon`
+   key, which is being deprecated). It has the same low privileges, so the RLS policies behave the same.
 4. `npm install`
-5. `npm run dev` para desenvolvimento; `npm run build` para produção.
+5. `npm run dev` for development; `npm run build` for production.
 
-## Testes
+## Tests
 
-`npm test` — testa a lógica de pontuação (Hit Factor, ranking por estágio e geral).
+`npm test` — tests the scoring logic (Hit Factor, stage ranking, and overall ranking).
 
 ## Deploy (Vercel)
 
-1. Faz push do repositório para o GitHub.
-2. Importa o repo na Vercel (framework: Vite).
-3. Em Settings → Environment Variables, adiciona `VITE_SUPABASE_URL` e `VITE_SUPABASE_PUBLISHABLE_KEY`.
-4. Deploy. O ficheiro `vercel.json` (incluído) reescreve todas as rotas para `index.html` (necessário para o routing client-side da SPA).
+1. Push the repository to GitHub.
+2. Import the repo into Vercel (framework: Vite).
+3. In Settings → Environment Variables, add `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY`.
+4. Deploy. The `vercel.json` file (included) rewrites all routes to `index.html` (required for the SPA's client-side routing).
 
-## Páginas
+## Pages
 
-- `/` Ranking geral — `/estagios` Ranking por estágio — `/regras` Regras
-- `/registo` (login) Registo de pontos — `/gestao` (login) Jogadores, juízes, definições
+- `/` Overall ranking — `/estagios` Stage rankings — `/regras` Rules
+- `/registo` (login) Score entry — `/gestao` (login) Players, judges, settings

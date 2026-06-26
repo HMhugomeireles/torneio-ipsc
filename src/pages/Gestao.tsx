@@ -33,40 +33,40 @@ export default function Gestao() {
 
   return (
     <div className="flex flex-col gap-8">
-      <h1 className="text-2xl font-black uppercase tracking-widest">Gestão</h1>
+      <h1 className="text-2xl font-black uppercase tracking-widest">Management</h1>
       {error && <p className="border border-red-500 bg-red-500/10 p-2 uppercase tracking-widest text-red-500">{error}</p>}
 
       <section>
-        <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-bullet-accent">Jogadores</h2>
+        <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-bullet-accent">Players</h2>
         <div className="flex gap-2">
           <input className="tactical-input flex-1" value={playerName}
-            onChange={e => setPlayerName(e.target.value)} placeholder="Nome do jogador" />
-          <button onClick={addPlayer} className="cursor-pointer bg-bullet-accent px-4 font-bold uppercase tracking-widest text-bullet-dark transition-colors hover:bg-white hover:text-black">Adicionar</button>
+            onChange={e => setPlayerName(e.target.value)} placeholder="Player name" />
+          <button onClick={addPlayer} className="cursor-pointer bg-bullet-accent px-4 font-bold uppercase tracking-widest text-bullet-dark transition-colors hover:bg-white hover:text-black">Add</button>
         </div>
         <ul className="mt-2 divide-y divide-white/10">
           {players.map(p => (
             <li key={p.id} className="flex items-center justify-between py-2">
               <span className="uppercase tracking-wider">{p.name}</span>
               <button onClick={async () => { try { await data.deletePlayer(p.id); reload() } catch (e) { setError(String(e)) } }}
-                className="cursor-pointer border border-red-500 px-3 py-1 text-xs font-bold uppercase tracking-widest text-red-500 transition-colors hover:bg-red-500 hover:text-white">Remover</button>
+                className="cursor-pointer border border-red-500 px-3 py-1 text-xs font-bold uppercase tracking-widest text-red-500 transition-colors hover:bg-red-500 hover:text-white">Remove</button>
             </li>
           ))}
         </ul>
       </section>
 
       <section>
-        <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-bullet-accent">Juízes</h2>
+        <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-bullet-accent">Judges</h2>
         <div className="flex gap-2">
           <input className="tactical-input flex-1" value={judgeName}
-            onChange={e => setJudgeName(e.target.value)} placeholder="Nome do juiz" />
-          <button onClick={addJudge} className="cursor-pointer bg-bullet-accent px-4 font-bold uppercase tracking-widest text-bullet-dark transition-colors hover:bg-white hover:text-black">Adicionar</button>
+            onChange={e => setJudgeName(e.target.value)} placeholder="Judge name" />
+          <button onClick={addJudge} className="cursor-pointer bg-bullet-accent px-4 font-bold uppercase tracking-widest text-bullet-dark transition-colors hover:bg-white hover:text-black">Add</button>
         </div>
         <ul className="mt-2 divide-y divide-white/10">
           {judges.map(j => (
             <li key={j.id} className="flex items-center justify-between py-2">
               <span className="uppercase tracking-wider">{j.name}</span>
-              <button onClick={async () => { try { setError(null); await data.deleteJudge(j.id); reload() } catch { setError('Não é possível remover um juiz com resultados registados.') } }}
-                className="cursor-pointer border border-red-500 px-3 py-1 text-xs font-bold uppercase tracking-widest text-red-500 transition-colors hover:bg-red-500 hover:text-white">Remover</button>
+              <button onClick={async () => { try { setError(null); await data.deleteJudge(j.id); reload() } catch { setError('Cannot remove a judge with recorded results.') } }}
+                className="cursor-pointer border border-red-500 px-3 py-1 text-xs font-bold uppercase tracking-widest text-red-500 transition-colors hover:bg-red-500 hover:text-white">Remove</button>
             </li>
           ))}
         </ul>
@@ -74,9 +74,9 @@ export default function Gestao() {
 
       {settings && (
         <section>
-          <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-bullet-accent">Definições</h2>
+          <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-bullet-accent">Settings</h2>
           <label className="flex items-center gap-2 uppercase tracking-widest text-bullet-muted">
-            Segundos por defeito (arma única):
+            Default seconds (single weapon):
             <input type="number" className="tactical-input w-24"
               value={settings.default_single_weapon_seconds}
               onChange={e => { const n = Number(e.target.value); setSettings({ ...settings, default_single_weapon_seconds: Number.isFinite(n) ? n : 0 }) }}

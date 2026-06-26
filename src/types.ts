@@ -1,4 +1,4 @@
-export type Factor = 'maior' | 'menor'
+export type Factor = 'major' | 'minor'
 
 export interface Player {
   id: string

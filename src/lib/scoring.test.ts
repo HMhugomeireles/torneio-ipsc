@@ -7,7 +7,7 @@ import type { StageResult, Player } from '../types'
 
 function make(partial: Partial<StageResult>): StageResult {
   return {
-    id: 'x', player_id: 'p', judge_id: 'j', stage: 1, factor: 'maior',
+    id: 'x', player_id: 'p', judge_id: 'j', stage: 1, factor: 'major',
     alpha: 0, charlie: 0, delta: 0, metal: 0,
     pen_miss: 0, pen_no_shoot: 0, pen_safety: 0, pen_out_of_zone: 0,
     time_seconds: 10, single_weapon: false, single_weapon_seconds: 0,
@@ -16,12 +16,12 @@ function make(partial: Partial<StageResult>): StageResult {
 }
 
 describe('rawPoints', () => {
-  it('scores zones with FATOR MAIOR (A5 C4 D2, metal 5)', () => {
-    const r = make({ factor: 'maior', alpha: 2, charlie: 1, delta: 1, metal: 1 })
+  it('scores zones with MAJOR FACTOR (A5 C4 D2, metal 5)', () => {
+    const r = make({ factor: 'major', alpha: 2, charlie: 1, delta: 1, metal: 1 })
     expect(rawPoints(r)).toBe(21)
   })
-  it('scores zones with FATOR MENOR (A5 C3 D1, metal 5)', () => {
-    const r = make({ factor: 'menor', alpha: 2, charlie: 1, delta: 1, metal: 1 })
+  it('scores zones with MINOR FACTOR (A5 C3 D1, metal 5)', () => {
+    const r = make({ factor: 'minor', alpha: 2, charlie: 1, delta: 1, metal: 1 })
     expect(rawPoints(r)).toBe(19)
   })
 })
@@ -35,11 +35,11 @@ describe('penaltyCount', () => {
 
 describe('points', () => {
   it('subtracts 10 per penalty from raw points', () => {
-    const r = make({ factor: 'maior', alpha: 4, pen_miss: 1 })
+    const r = make({ factor: 'major', alpha: 4, pen_miss: 1 })
     expect(points(r)).toBe(10)
   })
   it('never goes below zero', () => {
-    const r = make({ factor: 'maior', alpha: 1, pen_miss: 1 })
+    const r = make({ factor: 'major', alpha: 1, pen_miss: 1 })
     expect(points(r)).toBe(0)
   })
 })
@@ -60,7 +60,7 @@ describe('finalTime', () => {
 
 describe('hitFactor', () => {
   it('is points divided by final time', () => {
-    const r = make({ factor: 'maior', alpha: 8, time_seconds: 20 })
+    const r = make({ factor: 'major', alpha: 8, time_seconds: 20 })
     expect(hitFactor(r)).toBeCloseTo(2)
   })
   it('is 0 when final time is 0', () => {

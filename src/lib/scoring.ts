@@ -2,8 +2,8 @@ import type { Factor, Player, StageResult } from '../types'
 
 const ALPHA = 5
 const METAL = 5
-const CHARLIE: Record<Factor, number> = { maior: 4, menor: 3 }
-const DELTA: Record<Factor, number> = { maior: 2, menor: 1 }
+const CHARLIE: Record<Factor, number> = { major: 4, minor: 3 }
+const DELTA: Record<Factor, number> = { major: 2, minor: 1 }
 const PENALTY = 10
 
 export function rawPoints(r: StageResult): number {
