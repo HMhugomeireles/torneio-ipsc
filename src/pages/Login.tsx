@@ -16,7 +16,7 @@ export default function Login() {
     const { error } = await signIn(email, password)
     setBusy(false)
     if (error) setError(error)
-    else nav('/registo')
+    else nav('/score-entry')
   }
 
   return (

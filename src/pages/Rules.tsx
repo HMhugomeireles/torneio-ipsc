@@ -13,7 +13,7 @@ const penalties = [
   ['Shooting after hitting the final target', '−10', 'Per occurrence'],
 ]
 
-export default function Regras() {
+export default function Rules() {
   return (
     <div className="flex flex-col gap-6">
       <h1 className="text-2xl font-black uppercase tracking-widest">Rules &amp; scoring</h1>

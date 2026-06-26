@@ -9,7 +9,7 @@ const EMPTY = {
   pen_miss: 0, pen_no_shoot: 0, pen_safety: 0, pen_out_of_zone: 0,
 }
 
-export default function Registo() {
+export default function ScoreEntry() {
   const [players, setPlayers] = useState<Player[]>([])
   const [judges, setJudges] = useState<Judge[]>([])
   const [settings, setSettings] = useState<TournamentSettings | null>(null)

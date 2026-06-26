@@ -3,7 +3,7 @@ import type { Player, StageResult, TournamentSettings } from '../types'
 import * as data from '../lib/data'
 import { rankStage } from '../lib/scoring'
 
-export default function RankingEstagios() {
+export default function StageRankings() {
   const [results, setResults] = useState<StageResult[]>([])
   const [players, setPlayers] = useState<Player[]>([])
   const [settings, setSettings] = useState<TournamentSettings | null>(null)

@@ -13,10 +13,10 @@ export function Layout() {
       <header className="relative flex flex-wrap items-center gap-1 border-b border-white/10 bg-black/60 px-3 py-2">
         <span className="mr-3 text-lg font-black uppercase tracking-tighter text-bullet-text">TOURNAMENT</span>
         <NavLink to="/" className={cls} end>Overall</NavLink>
-        <NavLink to="/estagios" className={cls}>Stages</NavLink>
-        <NavLink to="/regras" className={cls}>Rules</NavLink>
-        {session && <NavLink to="/registo" className={cls}>Score Entry</NavLink>}
-        {session && <NavLink to="/gestao" className={cls}>Manage</NavLink>}
+        <NavLink to="/stages" className={cls}>Stages</NavLink>
+        <NavLink to="/rules" className={cls}>Rules</NavLink>
+        {session && <NavLink to="/score-entry" className={cls}>Score Entry</NavLink>}
+        {session && <NavLink to="/manage" className={cls}>Manage</NavLink>}
         <div className="ml-auto">
           {session
             ? <button onClick={signOut} className={`${linkBase} cursor-pointer text-bullet-muted hover:text-red-500`}>Sign out</button>

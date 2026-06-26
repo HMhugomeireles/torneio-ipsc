@@ -1,23 +1,23 @@
 import { Routes, Route } from 'react-router-dom'
 import { Layout } from './components/Layout'
 import { ProtectedRoute } from './lib/auth'
-import RankingGeral from './pages/RankingGeral'
-import RankingEstagios from './pages/RankingEstagios'
-import Regras from './pages/Regras'
-import Registo from './pages/Registo'
-import Gestao from './pages/Gestao'
+import OverallRanking from './pages/OverallRanking'
+import StageRankings from './pages/StageRankings'
+import Rules from './pages/Rules'
+import ScoreEntry from './pages/ScoreEntry'
+import Management from './pages/Management'
 import Login from './pages/Login'
 
 export default function App() {
   return (
     <Routes>
       <Route element={<Layout />}>
-        <Route index element={<RankingGeral />} />
-        <Route path="estagios" element={<RankingEstagios />} />
-        <Route path="regras" element={<Regras />} />
+        <Route index element={<OverallRanking />} />
+        <Route path="stages" element={<StageRankings />} />
+        <Route path="rules" element={<Rules />} />
         <Route path="login" element={<Login />} />
-        <Route path="registo" element={<ProtectedRoute><Registo /></ProtectedRoute>} />
-        <Route path="gestao" element={<ProtectedRoute><Gestao /></ProtectedRoute>} />
+        <Route path="score-entry" element={<ProtectedRoute><ScoreEntry /></ProtectedRoute>} />
+        <Route path="manage" element={<ProtectedRoute><Management /></ProtectedRoute>} />
       </Route>
     </Routes>
   )

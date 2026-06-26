@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import type { Player, Judge, TournamentSettings } from '../types'
 import * as data from '../lib/data'
 
-export default function Gestao() {
+export default function Management() {
   const [players, setPlayers] = useState<Player[]>([])
   const [judges, setJudges] = useState<Judge[]>([])
   const [settings, setSettings] = useState<TournamentSettings | null>(null)
