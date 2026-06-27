@@ -1,33 +1,49 @@
--- Players
-create table if not exists public.players (
+-- ⚠️ CLEAN RESET — run on a project with no real data. Drops existing tables.
+drop table if exists public.stage_results cascade;
+drop table if exists public.tournament_players cascade;
+drop table if exists public.tournament_settings cascade;
+drop table if exists public.tournaments cascade;
+drop table if exists public.players cascade;
+drop table if exists public.judges cascade;
+
+-- Players (global roster)
+create table public.players (
   id uuid primary key default gen_random_uuid(),
   name text not null,
   created_at timestamptz not null default now()
 );
 
--- Judges
-create table if not exists public.judges (
+-- Judges (global)
+create table public.judges (
   id uuid primary key default gen_random_uuid(),
   name text not null,
   created_at timestamptz not null default now()
 );
 
--- Single-row settings
-create table if not exists public.tournament_settings (
-  id int primary key default 1,
+-- Tournaments (per-tournament settings)
+create table public.tournaments (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  event_date date not null,
   stage_names jsonb not null default '["Stage 1","Stage 2","Stage 3","Stage 4"]'::jsonb,
   default_single_weapon_seconds numeric not null default 10,
-  constraint single_row check (id = 1)
+  created_at timestamptz not null default now()
 );
-insert into public.tournament_settings (id) values (1)
-  on conflict (id) do nothing;
+
+-- Enrollment (global player ↔ tournament)
+create table public.tournament_players (
+  tournament_id uuid not null references public.tournaments(id) on delete cascade,
+  player_id uuid not null references public.players(id) on delete cascade,
+  primary key (tournament_id, player_id)
+);
 
 -- Stage results
-create table if not exists public.stage_results (
+create table public.stage_results (
   id uuid primary key default gen_random_uuid(),
+  tournament_id uuid not null references public.tournaments(id) on delete cascade,
   player_id uuid not null references public.players(id) on delete cascade,
   judge_id uuid not null references public.judges(id) on delete restrict,
-  stage int not null check (stage between 1 and 4),
+  stage int not null check (stage >= 1),
   factor text not null check (factor in ('major','minor')),
   alpha int not null default 0,
   charlie int not null default 0,
@@ -42,13 +58,14 @@ create table if not exists public.stage_results (
   single_weapon_seconds numeric not null default 0,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
-  unique (player_id, stage)
+  unique (tournament_id, player_id, stage)
 );
 
 -- RLS: public read, authenticated write
 alter table public.players enable row level security;
 alter table public.judges enable row level security;
-alter table public.tournament_settings enable row level security;
+alter table public.tournaments enable row level security;
+alter table public.tournament_players enable row level security;
 alter table public.stage_results enable row level security;
 
 create policy "public read players" on public.players for select using (true);
@@ -59,8 +76,12 @@ create policy "public read judges" on public.judges for select using (true);
 create policy "auth write judges" on public.judges for all
   using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
 
-create policy "public read settings" on public.tournament_settings for select using (true);
-create policy "auth write settings" on public.tournament_settings for all
+create policy "public read tournaments" on public.tournaments for select using (true);
+create policy "auth write tournaments" on public.tournaments for all
+  using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
+
+create policy "public read enroll" on public.tournament_players for select using (true);
+create policy "auth write enroll" on public.tournament_players for all
   using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
 
 create policy "public read results" on public.stage_results for select using (true);
