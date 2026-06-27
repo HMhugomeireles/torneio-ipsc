@@ -17,7 +17,8 @@ export interface Tournament {
   name: string
   event_date: string // 'YYYY-MM-DD'
   stage_names: string[]
-  default_single_weapon_seconds: number
+  single_weapon_seconds_per_change: number
+  stage_weapon_changes: number[] // parallel to stage_names; index i = weapon changes for stage i+1
   created_at?: string
 }
 
