@@ -12,8 +12,7 @@ export function Layout() {
     <div className="min-h-screen bg-bullet-dark text-bullet-text font-mono">
       <header className="relative flex flex-wrap items-center gap-1 border-b border-white/10 bg-black/60 px-3 py-2">
         <span className="mr-3 text-lg font-black uppercase tracking-tighter text-bullet-text">TOURNAMENT</span>
-        <NavLink to="/" className={cls} end>Overall</NavLink>
-        <NavLink to="/stages" className={cls}>Stages</NavLink>
+        <NavLink to="/" className={cls} end>Home</NavLink>
         <NavLink to="/rules" className={cls}>Rules</NavLink>
         {session && <NavLink to="/score-entry" className={cls}>Score Entry</NavLink>}
         {session && <NavLink to="/manage" className={cls}>Manage</NavLink>}
