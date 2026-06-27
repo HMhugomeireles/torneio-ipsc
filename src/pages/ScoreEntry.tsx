@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import type { Player, Judge, Factor, StageResultInput, TournamentSettings } from '../types'
+import type { Player, Judge, Factor, StageResultInput, Tournament } from '../types'
 import * as data from '../lib/data'
 import { Counter } from '../components/Counter'
 import { points as calcPoints, finalTime as calcFinalTime, hitFactor as calcHf } from '../lib/scoring'
@@ -10,10 +10,11 @@ const EMPTY = {
 }
 
 export default function ScoreEntry() {
-  const [players, setPlayers] = useState<Player[]>([])
+  const [tournaments, setTournaments] = useState<Tournament[]>([])
   const [judges, setJudges] = useState<Judge[]>([])
-  const [settings, setSettings] = useState<TournamentSettings | null>(null)
+  const [players, setPlayers] = useState<Player[]>([])
 
+  const [tournamentId, setTournamentId] = useState('')
   const [playerId, setPlayerId] = useState('')
   const [judgeId, setJudgeId] = useState('')
   const [stage, setStage] = useState(1)
@@ -24,21 +25,33 @@ export default function ScoreEntry() {
   const [singleWeaponSeconds, setSingleWeaponSeconds] = useState(0)
   const [status, setStatus] = useState<string | null>(null)
 
+  const tournament = tournaments.find(t => t.id === tournamentId) ?? null
+  const stageCount = tournament?.stage_names.length ?? 0
+
   useEffect(() => {
     (async () => {
-      setPlayers(await data.getPlayers())
+      setTournaments(await data.getTournaments())
       setJudges(await data.getJudges())
-      const s = await data.getSettings()
-      setSettings(s)
-      setSingleWeaponSeconds(s.default_single_weapon_seconds)
     })()
   }, [])
 
-  // Load existing result when player+stage chosen (edit mode).
+  // When tournament changes: load enrolled players, reset selection + defaults.
   useEffect(() => {
-    if (!playerId) return
+    if (!tournamentId) { setPlayers([]); setPlayerId(''); return }
     (async () => {
-      const existing = await data.getResult(playerId, stage)
+      const t = tournaments.find(x => x.id === tournamentId) ?? null
+      setPlayers(await data.getEnrolledPlayers(tournamentId))
+      setPlayerId('')
+      setStage(s => (t && s > t.stage_names.length ? 1 : s))
+      setSingleWeaponSeconds(t?.default_single_weapon_seconds ?? 10)
+    })()
+  }, [tournamentId]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Load existing result when tournament+player+stage chosen (edit mode).
+  useEffect(() => {
+    if (!tournamentId || !playerId) return
+    (async () => {
+      const existing = await data.getResult(tournamentId, playerId, stage)
       if (existing) {
         setJudgeId(existing.judge_id)
         setFactor(existing.factor)
@@ -52,10 +65,10 @@ export default function ScoreEntry() {
         setSingleWeaponSeconds(existing.single_weapon_seconds)
       } else {
         setCounts({ ...EMPTY }); setTimeSeconds(0); setSingleWeapon(false)
-        setSingleWeaponSeconds(settings?.default_single_weapon_seconds ?? 10)
+        setSingleWeaponSeconds(tournament?.default_single_weapon_seconds ?? 10)
       }
     })()
-  }, [playerId, stage]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [tournamentId, playerId, stage]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const preview = useMemo(() => {
     const r = {
@@ -73,9 +86,9 @@ export default function ScoreEntry() {
   }
 
   async function save() {
-    if (!playerId || !judgeId) { setStatus('Choose a player and a judge.'); return }
+    if (!tournamentId || !playerId || !judgeId) { setStatus('Choose a tournament, player and judge.'); return }
     const input: StageResultInput = {
-      player_id: playerId, judge_id: judgeId, stage, factor, ...counts,
+      tournament_id: tournamentId, player_id: playerId, judge_id: judgeId, stage, factor, ...counts,
       time_seconds: timeSeconds, single_weapon: singleWeapon,
       single_weapon_seconds: singleWeapon ? singleWeaponSeconds : 0,
     }
@@ -90,6 +103,10 @@ export default function ScoreEntry() {
       <h1 className="text-2xl font-black uppercase tracking-widest">Score Entry</h1>
 
       <div className="grid gap-2">
+        <select className="tactical-input" value={tournamentId} onChange={e => setTournamentId(e.target.value)}>
+          <option value="">— Tournament —</option>
+          {tournaments.map(t => <option key={t.id} value={t.id}>{t.name} ({t.event_date})</option>)}
+        </select>
         <select className="tactical-input" value={playerId} onChange={e => setPlayerId(e.target.value)}>
           <option value="">— Player —</option>
           {players.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
@@ -100,7 +117,9 @@ export default function ScoreEntry() {
             {judges.map(j => <option key={j.id} value={j.id}>{j.name}</option>)}
           </select>
           <select className="tactical-input flex-1" value={stage} onChange={e => setStage(Number(e.target.value))}>
-            {[1, 2, 3, 4].map(n => <option key={n} value={n}>{settings?.stage_names[n - 1] ?? `Stage ${n}`}</option>)}
+            {Array.from({ length: stageCount }, (_, i) => i + 1).map(n => (
+              <option key={n} value={n}>{tournament?.stage_names[n - 1] ?? `Stage ${n}`}</option>
+            ))}
           </select>
         </div>
         <div className="flex gap-2">
