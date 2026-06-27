@@ -50,8 +50,10 @@ export default function ScoreEntry() {
   // Load existing result when tournament+player+stage chosen (edit mode).
   useEffect(() => {
     if (!tournamentId || !playerId) return
+    let ignore = false;
     (async () => {
       const existing = await data.getResult(tournamentId, playerId, stage)
+      if (ignore) return
       if (existing) {
         setJudgeId(existing.judge_id)
         setFactor(existing.factor)
@@ -68,6 +70,7 @@ export default function ScoreEntry() {
         setSingleWeaponSeconds(tournament?.default_single_weapon_seconds ?? 10)
       }
     })()
+    return () => { ignore = true }
   }, [tournamentId, playerId, stage]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const preview = useMemo(() => {

@@ -41,7 +41,7 @@ create table public.tournament_players (
 create table public.stage_results (
   id uuid primary key default gen_random_uuid(),
   tournament_id uuid not null references public.tournaments(id) on delete cascade,
-  player_id uuid not null references public.players(id) on delete cascade,
+  player_id uuid not null references public.players(id) on delete restrict,
   judge_id uuid not null references public.judges(id) on delete restrict,
   stage int not null check (stage >= 1),
   factor text not null check (factor in ('major','minor')),

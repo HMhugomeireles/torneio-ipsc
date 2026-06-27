@@ -225,7 +225,7 @@ export default function Management() {
           {players.map(p => (
             <li key={p.id} className="flex items-center justify-between py-2">
               <span className="uppercase tracking-wider">{p.name}</span>
-              <button onClick={() => run(() => data.deletePlayer(p.id))} className={dangerBtn}>Remove</button>
+              <button onClick={() => run(async () => { try { await data.deletePlayer(p.id) } catch { throw new Error('Cannot remove a player with recorded results.') } })} className={dangerBtn}>Remove</button>
             </li>
           ))}
         </ul>
