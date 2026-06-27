@@ -119,3 +119,8 @@ export function championshipRanking(
   rows.sort((a, b) => b.total - a.total || a.name.localeCompare(b.name))
   return rows
 }
+
+// Single-weapon time penalty for a stage: seconds-per-change × weapon changes.
+export function singleWeaponPenalty(secondsPerChange: number, weaponChanges: number): number {
+  return secondsPerChange * weaponChanges
+}
