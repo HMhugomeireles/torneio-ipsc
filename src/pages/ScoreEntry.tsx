@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import type { Player, Judge, Factor, StageResultInput, Tournament } from '../types'
 import * as data from '../lib/data'
 import { Counter } from '../components/Counter'
-import { points as calcPoints, finalTime as calcFinalTime, hitFactor as calcHf } from '../lib/scoring'
+import { points as calcPoints, finalTime as calcFinalTime, hitFactor as calcHf, singleWeaponPenalty } from '../lib/scoring'
 
 const EMPTY = {
   alpha: 0, charlie: 0, delta: 0, metal: 0,
@@ -22,11 +22,14 @@ export default function ScoreEntry() {
   const [counts, setCounts] = useState({ ...EMPTY })
   const [timeSeconds, setTimeSeconds] = useState(0)
   const [singleWeapon, setSingleWeapon] = useState(false)
-  const [singleWeaponSeconds, setSingleWeaponSeconds] = useState(0)
   const [status, setStatus] = useState<string | null>(null)
 
   const tournament = tournaments.find(t => t.id === tournamentId) ?? null
   const stageCount = tournament?.stage_names.length ?? 0
+  const swChanges = tournament?.stage_weapon_changes[stage - 1] ?? 0
+  const singleWeaponSeconds = singleWeapon
+    ? singleWeaponPenalty(tournament?.single_weapon_seconds_per_change ?? 0, swChanges)
+    : 0
 
   useEffect(() => {
     (async () => {
@@ -43,7 +46,6 @@ export default function ScoreEntry() {
       setPlayers(await data.getEnrolledPlayers(tournamentId))
       setPlayerId('')
       setStage(s => (t && s > t.stage_names.length ? 1 : s))
-      setSingleWeaponSeconds(t?.default_single_weapon_seconds ?? 10)
     })()
   }, [tournamentId]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -64,10 +66,8 @@ export default function ScoreEntry() {
         })
         setTimeSeconds(existing.time_seconds)
         setSingleWeapon(existing.single_weapon)
-        setSingleWeaponSeconds(existing.single_weapon_seconds)
       } else {
         setCounts({ ...EMPTY }); setTimeSeconds(0); setSingleWeapon(false)
-        setSingleWeaponSeconds(tournament?.default_single_weapon_seconds ?? 10)
       }
     })()
     return () => { ignore = true }
@@ -79,7 +79,7 @@ export default function ScoreEntry() {
       single_weapon: singleWeapon, single_weapon_seconds: singleWeaponSeconds,
     } as any
     return { pts: calcPoints(r), t: calcFinalTime(r), hf: calcHf(r) }
-  }, [counts, factor, timeSeconds, singleWeapon, singleWeaponSeconds])
+  }, [counts, factor, timeSeconds, singleWeapon, singleWeaponSeconds, stage, tournamentId])
 
   const charliePts = factor === 'major' ? 4 : 3
   const deltaPts = factor === 'major' ? 2 : 1
@@ -93,7 +93,7 @@ export default function ScoreEntry() {
     const input: StageResultInput = {
       tournament_id: tournamentId, player_id: playerId, judge_id: judgeId, stage, factor, ...counts,
       time_seconds: timeSeconds, single_weapon: singleWeapon,
-      single_weapon_seconds: singleWeapon ? singleWeaponSeconds : 0,
+      single_weapon_seconds: singleWeaponSeconds,
     }
     try {
       await data.saveResult(input)
@@ -165,12 +165,7 @@ export default function ScoreEntry() {
           <input type="checkbox" className="accent-bullet-accent" checked={singleWeapon} onChange={e => setSingleWeapon(e.target.checked)} />
           Single weapon
           {singleWeapon && (
-            <>
-              <span className="ml-auto text-bullet-accent">+</span>
-              <input type="number" className="tactical-input w-20"
-                value={singleWeaponSeconds} onChange={e => { const n = Number(e.target.value); setSingleWeaponSeconds(Number.isFinite(n) ? n : 0) }} />
-              <span>sec</span>
-            </>
+            <span className="ml-auto text-bullet-accent">+{singleWeaponSeconds}s ({swChanges} change{swChanges === 1 ? '' : 's'})</span>
           )}
         </label>
       </div>
