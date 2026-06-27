@@ -68,7 +68,10 @@ export default function Management() {
   // stages
   async function addStage() {
     if (!draft) return
-    await saveDraft({ stage_names: [...draft.stage_names, `Stage ${draft.stage_names.length + 1}`] })
+    await saveDraft({
+      stage_names: [...draft.stage_names, `Stage ${draft.stage_names.length + 1}`],
+      stage_weapon_changes: [...draft.stage_weapon_changes, 0],
+    })
   }
   async function removeLastStage() {
     if (!draft || draft.stage_names.length <= 1) return
@@ -76,7 +79,10 @@ export default function Management() {
     await run(async () => {
       const n = await data.getStageResultCount(draft.id, last)
       if (n > 0) { setError('Cannot remove a stage with recorded results.'); return }
-      await data.updateTournament(draft.id, { stage_names: draft.stage_names.slice(0, -1) })
+      await data.updateTournament(draft.id, {
+        stage_names: draft.stage_names.slice(0, -1),
+        stage_weapon_changes: draft.stage_weapon_changes.slice(0, -1),
+      })
     })
   }
   // enrollment
@@ -151,7 +157,8 @@ export default function Management() {
             <div className="flex flex-col gap-2">
               <p className="uppercase tracking-widest text-bullet-muted">This tournament is in the past and is locked (read-only).</p>
               <p className="uppercase tracking-wider">Date: <span className="text-bullet-muted">{draft.event_date}</span></p>
-              <p className="uppercase tracking-wider">Stages: <span className="text-bullet-muted">{draft.stage_names.join(', ')}</span></p>
+              <p className="uppercase tracking-wider">Stages: <span className="text-bullet-muted">{draft.stage_names.map((n, i) => `${n} (${draft.stage_weapon_changes[i] ?? 0} changes)`).join(', ')}</span></p>
+              <p className="uppercase tracking-wider">Seconds per weapon change: <span className="text-bullet-muted">{draft.single_weapon_seconds_per_change}</span></p>
               <p className="uppercase tracking-wider">Enrolled: <span className="text-bullet-muted">{enrolled.map(p => p.name).join(', ') || '—'}</span></p>
             </div>
           ) : (
@@ -169,11 +176,18 @@ export default function Management() {
                 <div className="mb-1 text-xs uppercase tracking-widest text-bullet-muted">Stages</div>
                 <div className="grid gap-2">
                   {draft.stage_names.map((name, i) => (
-                    <input key={i} className="tactical-input" value={name}
-                      onChange={e => { const next = [...draft.stage_names]; next[i] = e.target.value; patchDraft({ stage_names: next }) }}
-                      onBlur={() => saveDraft({ stage_names: draft.stage_names })} />
+                    <div key={i} className="flex gap-2">
+                      <input className="tactical-input flex-1" value={name}
+                        onChange={e => { const next = [...draft.stage_names]; next[i] = e.target.value; patchDraft({ stage_names: next }) }}
+                        onBlur={() => saveDraft({ stage_names: draft.stage_names })} />
+                      <input type="number" min="0" className="tactical-input w-28" title="Weapon changes"
+                        value={draft.stage_weapon_changes[i] ?? 0}
+                        onChange={e => { const n = Number(e.target.value); const v = Number.isFinite(n) && n >= 0 ? n : 0; const next = draft.stage_names.map((_, idx) => idx === i ? v : (draft.stage_weapon_changes[idx] ?? 0)); patchDraft({ stage_weapon_changes: next }) }}
+                        onBlur={() => saveDraft({ stage_weapon_changes: draft.stage_weapon_changes })} />
+                    </div>
                   ))}
                 </div>
+                <div className="mt-1 text-[10px] uppercase tracking-widest text-bullet-muted">Stage name · weapon changes</div>
                 <div className="mt-2 flex gap-2">
                   <button onClick={addStage} className={accentBtn}>Add stage</button>
                   {draft.stage_names.length > 1 && <button onClick={removeLastStage} className={dangerBtn}>Remove last stage</button>}
@@ -181,10 +195,10 @@ export default function Management() {
               </div>
 
               <label className="flex items-center gap-2 uppercase tracking-widest text-bullet-muted">
-                Default seconds (single weapon):
-                <input type="number" className="tactical-input w-24" value={draft.default_single_weapon_seconds}
-                  onChange={e => { const n = Number(e.target.value); patchDraft({ default_single_weapon_seconds: Number.isFinite(n) ? n : 0 }) }}
-                  onBlur={() => saveDraft({ default_single_weapon_seconds: draft.default_single_weapon_seconds })} />
+                Seconds per weapon change:
+                <input type="number" min="0" className="tactical-input w-24" value={draft.single_weapon_seconds_per_change}
+                  onChange={e => { const n = Number(e.target.value); patchDraft({ single_weapon_seconds_per_change: Number.isFinite(n) && n >= 0 ? n : 0 }) }}
+                  onBlur={() => saveDraft({ single_weapon_seconds_per_change: draft.single_weapon_seconds_per_change })} />
               </label>
 
               <div>

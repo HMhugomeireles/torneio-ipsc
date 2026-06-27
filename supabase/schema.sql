@@ -26,7 +26,8 @@ create table public.tournaments (
   name text not null,
   event_date date not null,
   stage_names jsonb not null default '["Stage 1","Stage 2","Stage 3","Stage 4"]'::jsonb,
-  default_single_weapon_seconds numeric not null default 10,
+  single_weapon_seconds_per_change numeric not null default 10,
+  stage_weapon_changes jsonb not null default '[0,0,0,0]'::jsonb,
   created_at timestamptz not null default now()
 );
 

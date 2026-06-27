@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import {
   rawPoints, penaltyCount, points, finalTime, hitFactor, stagePoints,
-  rankStage, overallRanking, championshipRanking,
+  rankStage, overallRanking, championshipRanking, singleWeaponPenalty,
 } from './scoring'
 import type { StageResult, Player } from '../types'
 
@@ -156,5 +156,17 @@ describe('championshipRanking', () => {
     expect(rows).toHaveLength(1)
     expect(rows[0].total).toBeCloseTo(100)
     expect(rows[0].percentLeader).toBeCloseTo(100)
+  })
+})
+
+describe('singleWeaponPenalty', () => {
+  it('multiplies seconds-per-change by weapon changes', () => {
+    expect(singleWeaponPenalty(10, 2)).toBe(20)
+  })
+  it('is 0 when the stage has no weapon changes', () => {
+    expect(singleWeaponPenalty(10, 0)).toBe(0)
+  })
+  it('is 0 when seconds-per-change is 0', () => {
+    expect(singleWeaponPenalty(0, 3)).toBe(0)
   })
 })
