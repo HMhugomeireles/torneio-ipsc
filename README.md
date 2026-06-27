@@ -1,10 +1,11 @@
 # IPSC Tournament — Results Site
 
-Results app for an IPSC-style airsoft shooting tournament (4 stages, Hit Factor).
+Results app for IPSC-style airsoft shooting tournaments. Supports multiple tournaments — each with its own event date, stages, enrolled players, and rankings — plus a combined championship table across all tournaments.
 
 ## Setup
 
 1. Create a Supabase project. In the SQL Editor, run `supabase/schema.sql`.
+   **Note:** `schema.sql` performs a clean reset — it drops and recreates the tables, so re-running it wipes existing data. This is safe before you have real data.
 2. In Authentication → Users, create a user (email + password) — this is the shared judges' login.
 3. Copy `.env.example` to `.env` and fill in `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY`
    (Project Settings → API Keys → **Publishable key**, in the `sb_publishable_...` format; it replaces the old `anon`
@@ -25,5 +26,13 @@ Results app for an IPSC-style airsoft shooting tournament (4 stages, Hit Factor)
 
 ## Pages
 
-- `/` Overall ranking — `/estagios` Stage rankings — `/regras` Rules
-- `/registo` (login) Score entry — `/gestao` (login) Players, judges, settings
+- `/` — Championship table (combined across all tournaments) + list of tournaments
+- `/tournament/:id` — a tournament's overall ranking
+- `/tournament/:id/stages` — a tournament's per-stage rankings
+- `/rules` — scoring rules
+- `/score-entry` (login) — enter stage scores for a selected tournament
+- `/manage` (login) — create/manage tournaments, stages, enrolled players, and the global players & judges lists
+
+## Tournaments & dates
+
+Each tournament has an event date. Tournaments dated in the future (or today) can be edited and deleted in **Manage**. Once a tournament's date has passed it becomes **read-only** (it cannot be edited or deleted), preserving the historical record. Score entry is always allowed, so results can still be corrected after the event.

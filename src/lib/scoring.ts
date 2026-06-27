@@ -92,3 +92,30 @@ export function overallRanking(results: StageResult[], players: Player[]): Overa
   rows.sort((a, b) => b.total - a.total || a.name.localeCompare(b.name))
   return rows
 }
+
+export interface ChampionshipRow {
+  player_id: string
+  name: string
+  total: number
+  percentLeader: number
+}
+
+export function championshipRanking(
+  entries: { results: StageResult[]; players: Player[] }[],
+): ChampionshipRow[] {
+  const totals: Record<string, { name: string; total: number }> = {}
+  for (const entry of entries) {
+    for (const row of overallRanking(entry.results, entry.players)) {
+      const acc = (totals[row.player_id] ??= { name: row.name, total: 0 })
+      acc.total += row.total
+      acc.name = row.name // keep latest known name
+    }
+  }
+  const rows: ChampionshipRow[] = Object.entries(totals).map(([player_id, v]) => ({
+    player_id, name: v.name, total: v.total, percentLeader: 0,
+  }))
+  const maxTotal = rows.reduce((m, r) => Math.max(m, r.total), 0)
+  for (const r of rows) r.percentLeader = maxTotal > 0 ? (r.total / maxTotal) * 100 : 0
+  rows.sort((a, b) => b.total - a.total || a.name.localeCompare(b.name))
+  return rows
+}

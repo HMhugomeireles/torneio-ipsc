@@ -1,31 +1,39 @@
 import { useEffect, useState } from 'react'
-import type { Player, StageResult, TournamentSettings } from '../types'
+import { useParams, Link } from 'react-router-dom'
+import type { Player, StageResult, Tournament } from '../types'
 import * as data from '../lib/data'
 import { rankStage } from '../lib/scoring'
 
 export default function StageRankings() {
+  const { id } = useParams()
+  const [tournament, setTournament] = useState<Tournament | null>(null)
   const [results, setResults] = useState<StageResult[]>([])
   const [players, setPlayers] = useState<Player[]>([])
-  const [settings, setSettings] = useState<TournamentSettings | null>(null)
 
   useEffect(() => {
+    if (!id) return
     (async () => {
-      setResults(await data.getResults())
-      setPlayers(await data.getPlayers())
-      setSettings(await data.getSettings())
+      setTournament(await data.getTournament(id))
+      setResults(await data.getResultsForTournament(id))
+      setPlayers(await data.getEnrolledPlayers(id))
     })()
-  }, [])
+  }, [id])
 
-  const nameOf = (id: string) => players.find(p => p.id === id)?.name ?? '—'
+  const nameOf = (pid: string) => players.find(p => p.id === pid)?.name ?? '—'
+  const count = tournament?.stage_names.length ?? 0
+  const stages = Array.from({ length: count }, (_, i) => i + 1)
 
   return (
     <div className="flex flex-col gap-8">
-      <h1 className="text-2xl font-black uppercase tracking-widest">Stage Rankings</h1>
-      {[1, 2, 3, 4].map(stage => {
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h1 className="text-2xl font-black uppercase tracking-widest">{tournament?.name ?? 'Tournament'} — Stages</h1>
+        <Link to={`/tournament/${id}`} className="cursor-pointer text-xs uppercase tracking-widest text-bullet-muted hover:text-bullet-text">← Overall</Link>
+      </div>
+      {stages.map(stage => {
         const rows = rankStage(results.filter(r => r.stage === stage))
         return (
           <section key={stage}>
-            <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-bullet-accent">{settings?.stage_names[stage - 1] ?? `Stage ${stage}`}</h2>
+            <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-bullet-accent">{tournament?.stage_names[stage - 1] ?? `Stage ${stage}`}</h2>
             {rows.length === 0
               ? <p className="uppercase tracking-widest text-bullet-muted">No results.</p>
               : (

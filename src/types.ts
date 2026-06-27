@@ -12,17 +12,24 @@ export interface Judge {
   created_at?: string
 }
 
-export interface TournamentSettings {
-  id: number
+export interface Tournament {
+  id: string
+  name: string
+  event_date: string // 'YYYY-MM-DD'
   stage_names: string[]
   default_single_weapon_seconds: number
+  created_at?: string
 }
+
+// Fields editable when creating/updating a tournament (no server-managed fields)
+export type TournamentInput = Omit<Tournament, 'id' | 'created_at'>
 
 export interface StageResult {
   id: string
+  tournament_id: string
   player_id: string
   judge_id: string
-  stage: number // 1..4
+  stage: number // 1..n
   factor: Factor
   alpha: number
   charlie: number
