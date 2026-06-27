@@ -7,7 +7,7 @@ import type { StageResult, Player } from '../types'
 
 function make(partial: Partial<StageResult>): StageResult {
   return {
-    id: 'x', player_id: 'p', judge_id: 'j', stage: 1, factor: 'major',
+    id: 'x', tournament_id: 't', player_id: 'p', judge_id: 'j', stage: 1, factor: 'major',
     alpha: 0, charlie: 0, delta: 0, metal: 0,
     pen_miss: 0, pen_no_shoot: 0, pen_safety: 0, pen_out_of_zone: 0,
     time_seconds: 10, single_weapon: false, single_weapon_seconds: 0,
