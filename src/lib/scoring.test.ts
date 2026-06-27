@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import {
   rawPoints, penaltyCount, points, finalTime, hitFactor, stagePoints,
-  rankStage, overallRanking,
+  rankStage, overallRanking, championshipRanking,
 } from './scoring'
 import type { StageResult, Player } from '../types'
 
@@ -116,5 +116,45 @@ describe('overallRanking', () => {
     const carl = rows.find(r => r.player_id === 'C')!
     expect(carl.total).toBe(0)
     expect(carl.percentLeader).toBe(0)
+  })
+})
+
+describe('championshipRanking', () => {
+  it('sums each player\'s per-tournament overall totals across tournaments', () => {
+    const playersA = [{ id: 'A', name: 'Ana' }, { id: 'B', name: 'Bea' }]
+    const playersB = [{ id: 'A', name: 'Ana' }, { id: 'C', name: 'Carl' }]
+    const t1 = [
+      make({ id: 't1a', player_id: 'A', stage: 1, alpha: 8, time_seconds: 20 }),
+      make({ id: 't1b', player_id: 'B', stage: 1, alpha: 8, time_seconds: 40 }),
+    ]
+    const t2 = [
+      make({ id: 't2c', player_id: 'C', stage: 1, alpha: 8, time_seconds: 20 }),
+      make({ id: 't2a', player_id: 'A', stage: 1, alpha: 8, time_seconds: 40 }),
+    ]
+    const rows = championshipRanking([
+      { results: t1, players: playersA },
+      { results: t2, players: playersB },
+    ])
+    const byId = Object.fromEntries(rows.map(r => [r.player_id, r]))
+    expect(byId['A'].total).toBeCloseTo(150)
+    expect(byId['B'].total).toBeCloseTo(50)
+    expect(byId['C'].total).toBeCloseTo(100)
+    expect(rows[0].player_id).toBe('A')
+    expect(byId['A'].percentLeader).toBeCloseTo(100)
+    expect(byId['B'].percentLeader).toBeCloseTo(33.333, 2)
+  })
+
+  it('returns [] for no entries', () => {
+    expect(championshipRanking([])).toEqual([])
+  })
+
+  it('counts a player appearing in only one tournament', () => {
+    const rows = championshipRanking([
+      { results: [make({ id: 'x', player_id: 'A', stage: 1, alpha: 8, time_seconds: 20 })],
+        players: [{ id: 'A', name: 'Ana' }] },
+    ])
+    expect(rows).toHaveLength(1)
+    expect(rows[0].total).toBeCloseTo(100)
+    expect(rows[0].percentLeader).toBeCloseTo(100)
   })
 })
