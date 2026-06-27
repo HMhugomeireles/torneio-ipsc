@@ -182,7 +182,7 @@ export default function Management() {
                         onBlur={() => saveDraft({ stage_names: draft.stage_names })} />
                       <input type="number" min="0" className="tactical-input w-28" title="Weapon changes"
                         value={draft.stage_weapon_changes[i] ?? 0}
-                        onChange={e => { const n = Number(e.target.value); const next = [...draft.stage_weapon_changes]; next[i] = Number.isFinite(n) && n >= 0 ? n : 0; patchDraft({ stage_weapon_changes: next }) }}
+                        onChange={e => { const n = Number(e.target.value); const v = Number.isFinite(n) && n >= 0 ? n : 0; const next = draft.stage_names.map((_, idx) => idx === i ? v : (draft.stage_weapon_changes[idx] ?? 0)); patchDraft({ stage_weapon_changes: next }) }}
                         onBlur={() => saveDraft({ stage_weapon_changes: draft.stage_weapon_changes })} />
                     </div>
                   ))}
