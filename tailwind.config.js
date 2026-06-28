@@ -4,16 +4,20 @@ export default {
   theme: {
     extend: {
       colors: {
-        'bullet-dark': '#0f1216',
-        'bullet-panel': '#1a2026',
-        'bullet-panel-lighter': '#262e36',
-        'bullet-accent': '#d97706',
-        'bullet-glow': '#fbbf24',
-        'bullet-text': '#e2e8f0',
-        'bullet-muted': '#64748b',
+        // IPSCAirshuting design system (imported from claude.ai/design)
+        'ipsc-bg': '#0d100e',
+        'ipsc-panel': '#11140f',
+        'ipsc-line': '#1d211e',
+        'ipsc-line2': '#2c322c',
+        'ipsc-accent': '#e8732a',
+        'ipsc-text': '#e9e7e1',
+        'ipsc-muted': '#7a7f7a',
+        'ipsc-muted2': '#9aa09a',
       },
       fontFamily: {
-        mono: ['"Share Tech Mono"', 'monospace'],
+        jet: ['"JetBrains Mono"', 'monospace'],
+        saira: ['Saira', 'sans-serif'],
+        'saira-cond': ['"Saira Condensed"', 'sans-serif'],
       },
     },
   },

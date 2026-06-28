@@ -24,38 +24,41 @@ export default function OverallRanking() {
   const rows = overallRanking(results, players)
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <h1 className="text-2xl font-black uppercase tracking-widest">{tournament?.name ?? 'Tournament'}</h1>
-        <div className="flex gap-3 text-xs uppercase tracking-widest">
-          <Link to="/" className="cursor-pointer text-bullet-muted hover:text-bullet-text">← Championship</Link>
-          <Link to={`/tournament/${id}/stages`} className="cursor-pointer text-bullet-accent hover:text-bullet-text">Stage rankings →</Link>
+    <div className="flex flex-col gap-5">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <div className="ipsc-eyebrow mb-2">Classificação geral</div>
+          <h1 className="ipsc-h1">{tournament?.name ?? 'Torneio'}</h1>
+        </div>
+        <div className="font-jet flex gap-4 text-[11px] font-semibold uppercase tracking-[0.14em]">
+          <Link to="/" className="cursor-pointer text-ipsc-muted2 hover:text-ipsc-text">← Campeonato</Link>
+          <Link to={`/tournament/${id}/stages`} className="cursor-pointer text-ipsc-accent hover:text-ipsc-text">Stages →</Link>
         </div>
       </div>
       {rows.length === 0
-        ? <p className="uppercase tracking-widest text-bullet-muted">No players yet.</p>
+        ? <p className="ipsc-label">Sem atiradores ainda.</p>
         : (
-          <div className="tactical-panel overflow-x-auto">
-            <table className="w-full text-sm">
+          <div className="ipsc-panel overflow-x-auto">
+            <table className="w-full">
               <thead>
-                <tr className="text-left text-xs uppercase tracking-widest text-bullet-muted">
-                  <th className="px-3 py-2">#</th><th className="px-3 py-2">Player</th>
+                <tr className="border-b border-ipsc-line bg-ipsc-panel text-left">
+                  <th className="ipsc-th">POS</th><th className="ipsc-th">ATIRADOR</th>
                   {stages.map(n => (
-                    <th key={n} className="px-3 py-2 text-right">S{n}</th>
+                    <th key={n} className="ipsc-th text-right">S{n}</th>
                   ))}
-                  <th className="px-3 py-2 text-right text-bullet-accent">Total</th><th className="px-3 py-2 text-right">%</th>
+                  <th className="ipsc-th text-right">PONTOS</th><th className="ipsc-th text-right">%</th>
                 </tr>
               </thead>
               <tbody>
                 {rows.map((r, i) => (
-                  <tr key={r.player_id} className="border-t border-white/10">
-                    <td className="px-3 py-2 text-bullet-accent">{i + 1}</td>
-                    <td className="px-3 py-2 uppercase tracking-wider">{r.name}</td>
+                  <tr key={r.player_id} className="border-b border-[#15180f] last:border-b-0">
+                    <td className="ipsc-td font-saira-cond text-[18px] font-bold text-ipsc-accent">{i + 1}</td>
+                    <td className="ipsc-td font-semibold">{r.name}</td>
                     {stages.map(n => (
-                      <td key={n} className="px-3 py-2 text-right text-bullet-muted">{(r.perStage[n] ?? 0).toFixed(1)}</td>
+                      <td key={n} className="ipsc-td font-jet text-right text-[13px] text-ipsc-muted2">{(r.perStage[n] ?? 0).toFixed(1)}</td>
                     ))}
-                    <td className="px-3 py-2 text-right font-bold text-bullet-accent">{r.total.toFixed(1)}</td>
-                    <td className="px-3 py-2 text-right text-bullet-muted">{r.percentLeader.toFixed(1)}%</td>
+                    <td className="ipsc-td text-right font-saira-cond text-[18px] font-bold text-white">{r.total.toFixed(1)}</td>
+                    <td className="ipsc-td font-jet text-right text-[13px] text-ipsc-accent">{r.percentLeader.toFixed(1)}%</td>
                   </tr>
                 ))}
               </tbody>
