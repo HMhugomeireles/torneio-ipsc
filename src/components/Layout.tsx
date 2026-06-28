@@ -1,4 +1,4 @@
-import { Link, NavLink, Outlet } from 'react-router-dom'
+import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
 import { useAuth } from '../lib/auth'
 
 function Logo({ size = 24 }: { size?: number }) {
@@ -30,8 +30,39 @@ function cls({ isActive }: { isActive: boolean }) {
   return `${navLink} ${isActive ? 'text-ipsc-accent' : 'text-ipsc-muted2 hover:text-ipsc-text'}`
 }
 
+const adminTabs = [
+  { label: 'Registo resultados', to: '/score-entry', match: (p: string) => p === '/score-entry' },
+  { label: 'Manager', to: '/manage', match: (p: string) => p === '/manage' },
+]
+
+function AdminSubnav({ pathname }: { pathname: string }) {
+  return (
+    <div className="border-b border-ipsc-line bg-[#0a0c0a]">
+      <div className="mx-auto flex w-full max-w-6xl items-center gap-1.5 overflow-x-auto px-5 py-2.5 md:px-9">
+        <span className="font-jet mr-1 shrink-0 text-[10px] font-bold uppercase tracking-[0.14em] text-[#5a605a]">Gerir</span>
+        {adminTabs.map(t => {
+          const on = t.match(pathname)
+          return (
+            <Link
+              key={t.label}
+              to={t.to}
+              className={`font-jet shrink-0 rounded-[3px] border px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.1em] transition-colors ${
+                on ? 'border-[#3a2417] bg-[#170f0a] text-ipsc-accent' : 'border-transparent text-ipsc-muted2 hover:text-ipsc-text'
+              }`}
+            >
+              {t.label}
+            </Link>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
 export function Layout() {
   const { session, signOut } = useAuth()
+  const { pathname } = useLocation()
+  const isAdmin = pathname === '/score-entry' || pathname === '/manage'
   return (
     <div className="flex min-h-screen flex-col bg-ipsc-bg font-saira text-ipsc-text">
       {/* ---------- nav ---------- */}
@@ -46,8 +77,9 @@ export function Layout() {
             <Link to="/#ranking" className={`${navLink} text-ipsc-muted2 hover:text-ipsc-text`}>Ranking</Link>
             <NavLink to="/calendario" className={cls}>Calendário</NavLink>
             <NavLink to="/rules" className={cls}>Regras</NavLink>
-            {session && <NavLink to="/score-entry" className={cls}>Resultados</NavLink>}
-            {session && <NavLink to="/manage" className={cls}>Gerir</NavLink>}
+            {session && (
+              <Link to="/score-entry" className={`${navLink} ${isAdmin ? 'text-ipsc-accent' : 'text-ipsc-muted2 hover:text-ipsc-text'}`}>Gerir</Link>
+            )}
 
             {session
               ? (
@@ -69,6 +101,9 @@ export function Layout() {
           </nav>
         </div>
       </header>
+
+      {/* ---------- admin submenu ---------- */}
+      {session && isAdmin && <AdminSubnav pathname={pathname} />}
 
       {/* ---------- content ---------- */}
       <main className="mx-auto w-full max-w-6xl flex-1 px-5 py-8 md:px-9">

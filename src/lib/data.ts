@@ -1,5 +1,5 @@
 import { supabase } from './supabase'
-import type { Player, Judge, StageResult, StageResultInput, Tournament, TournamentInput } from '../types'
+import type { Enrollment, EnrollmentStatus, Player, Judge, StageResult, StageResultInput, Tournament, TournamentInput } from '../types'
 
 // ---------- Players (global roster) ----------
 export async function getPlayers(): Promise<Player[]> {
@@ -59,20 +59,39 @@ export async function deleteTournament(id: string): Promise<void> {
 }
 
 // ---------- Enrollment ----------
+// Confirmed players only — these are the ones eligible for scoring and counts.
 export async function getEnrolledPlayers(tournamentId: string): Promise<Player[]> {
   const { data, error } = await supabase
     .from('tournament_players')
     .select('player:players(*)')
     .eq('tournament_id', tournamentId)
+    .eq('status', 'confirmed')
   if (error) throw error
   return (data as unknown as { player: Player | null }[] ?? [])
     .map((r) => r.player)
     .filter((p): p is Player => !!p)
     .sort((a, b) => a.name.localeCompare(b.name))
 }
-export async function enrollPlayer(tournamentId: string, playerId: string): Promise<void> {
+// All enrollments (provisional + confirmed) with their status — for management.
+export async function getEnrollments(tournamentId: string): Promise<Enrollment[]> {
+  const { data, error } = await supabase
+    .from('tournament_players')
+    .select('status, player:players(*)')
+    .eq('tournament_id', tournamentId)
+  if (error) throw error
+  return (data as unknown as { status: EnrollmentStatus; player: Player | null }[] ?? [])
+    .filter((r) => !!r.player)
+    .map((r) => ({ player: r.player as Player, status: r.status }))
+    .sort((a, b) => a.player.name.localeCompare(b.player.name))
+}
+export async function enrollPlayer(tournamentId: string, playerId: string, status: EnrollmentStatus = 'provisional'): Promise<void> {
   const { error } = await supabase.from('tournament_players')
-    .insert({ tournament_id: tournamentId, player_id: playerId })
+    .insert({ tournament_id: tournamentId, player_id: playerId, status })
+  if (error) throw error
+}
+export async function setEnrollmentStatus(tournamentId: string, playerId: string, status: EnrollmentStatus): Promise<void> {
+  const { error } = await supabase.from('tournament_players')
+    .update({ status }).eq('tournament_id', tournamentId).eq('player_id', playerId)
   if (error) throw error
 }
 export async function unenrollPlayer(tournamentId: string, playerId: string): Promise<void> {
