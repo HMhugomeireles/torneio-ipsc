@@ -4,7 +4,7 @@ import type { Tournament } from '../types'
 import * as data from '../lib/data'
 import { championshipRanking, type ChampionshipRow } from '../lib/scoring'
 import { isPast, todayISO } from '../lib/dates'
-import { STATUS, fmtDay, fmtFull, fmtYear, initials, posColor, statusOf } from '../lib/format'
+import { STATUS, enrollmentBadge, fmtDay, fmtFull, fmtYear, initials, posColor, statusOf } from '../lib/format'
 
 const MEDAL: Record<number, { medal: string; cardBg: string; cardBorder: string; ghost: string; place: string }> = {
   1: { medal: '#e8732a', cardBg: '#16110b', cardBorder: '#3a2417', ghost: '#241710', place: '1.º LUGAR' },
@@ -60,7 +60,7 @@ export default function Home() {
       n: String(i + 1).padStart(2, '0'),
       stages: t.stage_names?.length ?? 0,
       shooters: shooters[t.id] ?? 0,
-      ...STATUS[statusOf(isPast(t.event_date, today), t.id === nextId)],
+      ...(enrollmentBadge(t.enroll_start, t.enroll_end, today) ?? STATUS[statusOf(isPast(t.event_date, today), t.id === nextId)]),
     }))
 
     const stats = [

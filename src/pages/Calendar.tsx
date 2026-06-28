@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import type { Tournament } from '../types'
 import * as data from '../lib/data'
 import { isPast, todayISO } from '../lib/dates'
-import { STATUS, fmtFull, fmtYear, statusOf } from '../lib/format'
+import { STATUS, enrollmentBadge, fmtFull, fmtYear, statusOf } from '../lib/format'
 
 export default function Calendar() {
   const [tournaments, setTournaments] = useState<Tournament[]>([])
@@ -29,7 +29,7 @@ export default function Calendar() {
       n: String(i + 1).padStart(2, '0'),
       stages: t.stage_names?.length ?? 0,
       shooters: shooters[t.id] ?? 0,
-      ...STATUS[statusOf(isPast(t.event_date, today), t.id === nextId)],
+      ...(enrollmentBadge(t.enroll_start, t.enroll_end, today) ?? STATUS[statusOf(isPast(t.event_date, today), t.id === nextId)]),
     }))
   }, [tournaments, shooters, today])
 

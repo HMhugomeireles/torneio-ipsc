@@ -2,6 +2,7 @@ export type Factor = 'major' | 'minor'
 
 export interface Player {
   id: string
+  reg_no?: number // unique sequential registration number, shown as #0001
   name: string
   created_at?: string
 }
@@ -12,10 +13,19 @@ export interface Judge {
   created_at?: string
 }
 
+export type EnrollmentStatus = 'provisional' | 'confirmed'
+
+export interface Enrollment {
+  player: Player
+  status: EnrollmentStatus
+}
+
 export interface Tournament {
   id: string
   name: string
   event_date: string // 'YYYY-MM-DD'
+  enroll_start: string | null // 'YYYY-MM-DD' — enrollment opens
+  enroll_end: string | null // 'YYYY-MM-DD' — enrollment closes
   stage_names: string[]
   single_weapon_seconds_per_change: number
   stage_weapon_changes: number[] // parallel to stage_names; index i = weapon changes for stage i+1
