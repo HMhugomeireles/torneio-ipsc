@@ -25,35 +25,38 @@ export default function StageRankings() {
 
   return (
     <div className="flex flex-col gap-8">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <h1 className="text-2xl font-black uppercase tracking-widest">{tournament?.name ?? 'Tournament'} — Stages</h1>
-        <Link to={`/tournament/${id}`} className="cursor-pointer text-xs uppercase tracking-widest text-bullet-muted hover:text-bullet-text">← Overall</Link>
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <div className="ipsc-eyebrow mb-2">Classificação por stage</div>
+          <h1 className="ipsc-h1">{tournament?.name ?? 'Torneio'}</h1>
+        </div>
+        <Link to={`/tournament/${id}`} className="font-jet cursor-pointer text-[11px] font-semibold uppercase tracking-[0.14em] text-ipsc-muted2 hover:text-ipsc-text">← Geral</Link>
       </div>
       {stages.map(stage => {
         const rows = rankStage(results.filter(r => r.stage === stage))
         return (
-          <section key={stage}>
-            <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-bullet-accent">{tournament?.stage_names[stage - 1] ?? `Stage ${stage}`}</h2>
+          <section key={stage} className="flex flex-col gap-3">
+            <h2 className="font-saira-cond text-[22px] font-bold">{tournament?.stage_names[stage - 1] ?? `Stage ${stage}`}</h2>
             {rows.length === 0
-              ? <p className="uppercase tracking-widest text-bullet-muted">No results.</p>
+              ? <p className="ipsc-label">Sem resultados.</p>
               : (
-                <div className="tactical-panel overflow-x-auto">
-                  <table className="w-full text-sm">
+                <div className="ipsc-panel overflow-x-auto">
+                  <table className="w-full">
                     <thead>
-                      <tr className="text-left text-xs uppercase tracking-widest text-bullet-muted">
-                        <th className="px-3 py-2">#</th><th className="px-3 py-2">Player</th><th className="px-3 py-2">Factor</th><th className="px-3 py-2 text-right">Pts</th>
-                        <th className="px-3 py-2 text-right">Time</th><th className="px-3 py-2 text-right">HF</th><th className="px-3 py-2 text-right text-bullet-accent">Stage pts</th></tr>
+                      <tr className="border-b border-ipsc-line bg-ipsc-panel text-left">
+                        <th className="ipsc-th">POS</th><th className="ipsc-th">ATIRADOR</th><th className="ipsc-th">FATOR</th><th className="ipsc-th text-right">PTS</th>
+                        <th className="ipsc-th text-right">TEMPO</th><th className="ipsc-th text-right">HF</th><th className="ipsc-th text-right">PTS STAGE</th></tr>
                     </thead>
                     <tbody>
                       {rows.map((r, i) => (
-                        <tr key={r.result.id} className="border-t border-white/10">
-                          <td className="px-3 py-2 text-bullet-accent">{i + 1}</td>
-                          <td className="px-3 py-2 uppercase tracking-wider">{nameOf(r.player_id)}</td>
-                          <td className="px-3 py-2 uppercase text-bullet-muted">{r.result.factor === 'major' ? 'Major' : 'Minor'}</td>
-                          <td className="px-3 py-2 text-right">{r.points}</td>
-                          <td className="px-3 py-2 text-right text-bullet-muted">{r.finalTime.toFixed(2)}s</td>
-                          <td className="px-3 py-2 text-right text-bullet-muted">{r.hitFactor.toFixed(3)}</td>
-                          <td className="px-3 py-2 text-right font-bold text-bullet-accent">{r.stagePoints.toFixed(1)}</td>
+                        <tr key={r.result.id} className="border-b border-[#15180f] last:border-b-0">
+                          <td className="ipsc-td font-saira-cond text-[18px] font-bold text-ipsc-accent">{i + 1}</td>
+                          <td className="ipsc-td font-semibold">{nameOf(r.player_id)}</td>
+                          <td className="ipsc-td font-jet text-[12px] uppercase tracking-[0.1em] text-ipsc-muted2">{r.result.factor === 'major' ? 'Major' : 'Minor'}</td>
+                          <td className="ipsc-td font-jet text-right text-[13px]">{r.points}</td>
+                          <td className="ipsc-td font-jet text-right text-[13px] text-ipsc-muted2">{r.finalTime.toFixed(2)}s</td>
+                          <td className="ipsc-td font-jet text-right text-[13px] text-ipsc-muted2">{r.hitFactor.toFixed(3)}</td>
+                          <td className="ipsc-td text-right font-saira-cond text-[18px] font-bold text-ipsc-accent">{r.stagePoints.toFixed(1)}</td>
                         </tr>
                       ))}
                     </tbody>

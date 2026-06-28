@@ -5,6 +5,7 @@ import Home from './pages/Home'
 import OverallRanking from './pages/OverallRanking'
 import StageRankings from './pages/StageRankings'
 import Rules from './pages/Rules'
+import Calendar from './pages/Calendar'
 import ScoreEntry from './pages/ScoreEntry'
 import Management from './pages/Management'
 import Login from './pages/Login'
@@ -16,6 +17,7 @@ export default function App() {
         <Route index element={<Home />} />
         <Route path="tournament/:id" element={<OverallRanking />} />
         <Route path="tournament/:id/stages" element={<StageRankings />} />
+        <Route path="calendario" element={<Calendar />} />
         <Route path="rules" element={<Rules />} />
         <Route path="login" element={<Login />} />
         <Route path="score-entry" element={<ProtectedRoute><ScoreEntry /></ProtectedRoute>} />

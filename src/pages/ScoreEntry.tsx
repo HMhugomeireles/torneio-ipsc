@@ -89,7 +89,7 @@ export default function ScoreEntry() {
   }
 
   async function save() {
-    if (!tournamentId || !playerId || !judgeId) { setStatus('Choose a tournament, player and judge.'); return }
+    if (!tournamentId || !playerId || !judgeId) { setStatus('Escolhe torneio, atirador e juiz.'); return }
     const input: StageResultInput = {
       tournament_id: tournamentId, player_id: playerId, judge_id: judgeId, stage, factor, ...counts,
       time_seconds: timeSeconds, single_weapon: singleWeapon,
@@ -97,29 +97,32 @@ export default function ScoreEntry() {
     }
     try {
       await data.saveResult(input)
-      setStatus('Saved ✓')
-    } catch (e) { setStatus('Error: ' + String(e)) }
+      setStatus('Guardado ✓')
+    } catch (e) { setStatus('Erro: ' + String(e)) }
   }
 
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-2xl font-black uppercase tracking-widest">Score Entry</h1>
+      <div>
+        <div className="ipsc-eyebrow mb-2">Registo de resultados</div>
+        <h1 className="ipsc-h1">Resultados</h1>
+      </div>
 
       <div className="grid gap-2">
-        <select className="tactical-input" value={tournamentId} onChange={e => setTournamentId(e.target.value)}>
-          <option value="">— Tournament —</option>
+        <select className="ipsc-input" value={tournamentId} onChange={e => setTournamentId(e.target.value)}>
+          <option value="">— Torneio —</option>
           {tournaments.map(t => <option key={t.id} value={t.id}>{t.name} ({t.event_date})</option>)}
         </select>
-        <select className="tactical-input" value={playerId} onChange={e => setPlayerId(e.target.value)}>
-          <option value="">— Player —</option>
+        <select className="ipsc-input" value={playerId} onChange={e => setPlayerId(e.target.value)}>
+          <option value="">— Atirador —</option>
           {players.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
         </select>
         <div className="flex gap-2">
-          <select className="tactical-input flex-1" value={judgeId} onChange={e => setJudgeId(e.target.value)}>
-            <option value="">— Judge —</option>
+          <select className="ipsc-input flex-1" value={judgeId} onChange={e => setJudgeId(e.target.value)}>
+            <option value="">— Juiz —</option>
             {judges.map(j => <option key={j.id} value={j.id}>{j.name}</option>)}
           </select>
-          <select className="tactical-input flex-1" value={stage} onChange={e => setStage(Number(e.target.value))}>
+          <select className="ipsc-input flex-1" value={stage} onChange={e => setStage(Number(e.target.value))}>
             {Array.from({ length: stageCount }, (_, i) => i + 1).map(n => (
               <option key={n} value={n}>{tournament?.stage_names[n - 1] ?? `Stage ${n}`}</option>
             ))}
@@ -128,7 +131,7 @@ export default function ScoreEntry() {
         <div className="flex gap-2">
           {(['major', 'minor'] as Factor[]).map(f => (
             <button key={f} onClick={() => setFactor(f)}
-              className={`flex-1 cursor-pointer border p-3 font-bold uppercase tracking-widest transition-colors ${factor === f ? 'border-bullet-accent bg-bullet-accent text-bullet-dark' : 'border-white/10 bg-black/40 text-bullet-muted hover:text-bullet-text'}`}>
+              className={`font-jet flex-1 cursor-pointer rounded-[3px] border p-3 text-[13px] font-bold uppercase tracking-[0.14em] transition-colors ${factor === f ? 'border-ipsc-accent bg-ipsc-accent text-ipsc-bg' : 'border-ipsc-line bg-black/30 text-ipsc-muted2 hover:text-ipsc-text'}`}>
               {f === 'major' ? 'Major Factor' : 'Minor Factor'}
             </button>
           ))}
@@ -136,7 +139,7 @@ export default function ScoreEntry() {
       </div>
 
       <div>
-        <div className="mb-1 text-xs uppercase tracking-widest text-bullet-muted">Points</div>
+        <div className="ipsc-label mb-1.5">Pontos</div>
         <div className="grid gap-2">
           <Counter label="ALPHA" sublabel="5 pts" value={counts.alpha} onChange={v => set('alpha', v)} />
           <Counter label="CHARLIE" sublabel={`${charliePts} pts`} value={counts.charlie} onChange={v => set('charlie', v)} />
@@ -146,40 +149,38 @@ export default function ScoreEntry() {
       </div>
 
       <div>
-        <div className="mb-1 text-xs uppercase tracking-widest text-bullet-muted">Penalties (−10 each)</div>
+        <div className="ipsc-label mb-1.5">Penalizações (−10 cada)</div>
         <div className="grid gap-2">
           <Counter variant="penalty" label="Miss" value={counts.pen_miss} onChange={v => set('pen_miss', v)} />
           <Counter variant="penalty" label="No-shoot" value={counts.pen_no_shoot} onChange={v => set('pen_no_shoot', v)} />
-          <Counter variant="penalty" label="Safety / Procedure" value={counts.pen_safety} onChange={v => set('pen_safety', v)} />
-          <Counter variant="penalty" label="Outside firing zone" value={counts.pen_out_of_zone} onChange={v => set('pen_out_of_zone', v)} />
+          <Counter variant="penalty" label="Segurança / Procedimento" value={counts.pen_safety} onChange={v => set('pen_safety', v)} />
+          <Counter variant="penalty" label="Fora da zona de tiro" value={counts.pen_out_of_zone} onChange={v => set('pen_out_of_zone', v)} />
         </div>
       </div>
 
-      <div className="tactical-panel p-3">
-        <label className="flex items-center gap-2 uppercase tracking-widest text-bullet-muted">
-          Time (sec):
-          <input type="number" step="0.01" className="tactical-input w-28"
+      <div className="ipsc-panel p-3">
+        <label className="font-jet flex items-center gap-2 text-[12px] uppercase tracking-[0.12em] text-ipsc-muted2">
+          Tempo (seg):
+          <input type="number" step="0.01" className="ipsc-input w-28"
             value={timeSeconds} onChange={e => { const n = Number(e.target.value); setTimeSeconds(Number.isFinite(n) ? n : 0) }} />
         </label>
-        <label className="mt-3 flex items-center gap-2 uppercase tracking-widest text-bullet-muted">
-          <input type="checkbox" className="accent-bullet-accent" checked={singleWeapon} onChange={e => setSingleWeapon(e.target.checked)} />
-          Single weapon
+        <label className="font-jet mt-3 flex items-center gap-2 text-[12px] uppercase tracking-[0.12em] text-ipsc-muted2">
+          <input type="checkbox" className="accent-ipsc-accent" checked={singleWeapon} onChange={e => setSingleWeapon(e.target.checked)} />
+          Arma única
           {singleWeapon && (
-            <span className="ml-auto text-bullet-accent">+{singleWeaponSeconds}s ({swChanges} change{swChanges === 1 ? '' : 's'})</span>
+            <span className="ml-auto text-ipsc-accent">+{singleWeaponSeconds}s ({swChanges} troca{swChanges === 1 ? '' : 's'})</span>
           )}
         </label>
       </div>
 
-      <div className="glow-orange flex justify-between border border-bullet-accent bg-black/60 p-3 font-bold uppercase tracking-widest">
-        <span>Pts: <span className="text-bullet-accent">{preview.pts}</span></span>
-        <span>Time: <span className="text-bullet-accent">{preview.t.toFixed(2)}s</span></span>
-        <span>HF: <span className="text-bullet-accent">{preview.hf.toFixed(2)}</span></span>
+      <div className="font-jet flex justify-between rounded-[5px] border border-ipsc-accent bg-ipsc-panel p-3 text-[13px] font-bold uppercase tracking-[0.12em]">
+        <span>Pts: <span className="text-ipsc-accent">{preview.pts}</span></span>
+        <span>Tempo: <span className="text-ipsc-accent">{preview.t.toFixed(2)}s</span></span>
+        <span>HF: <span className="text-ipsc-accent">{preview.hf.toFixed(2)}</span></span>
       </div>
 
-      {status && <p className="text-center uppercase tracking-widest text-bullet-text">{status}</p>}
-      <button onClick={save}
-        className="relative cursor-pointer overflow-hidden bg-bullet-accent p-4 text-lg font-bold uppercase tracking-[0.2em] text-bullet-dark transition-colors duration-300 hover:bg-white hover:text-black"
-        style={{ clipPath: 'polygon(3% 0, 100% 0, 100% 70%, 97% 100%, 0 100%, 0 30%)' }}>Save stage</button>
+      {status && <p className="font-jet text-center text-[12px] uppercase tracking-[0.12em] text-ipsc-text">{status}</p>}
+      <button onClick={save} className="ipsc-btn p-4 text-[15px]">Guardar stage</button>
     </div>
   )
 }
