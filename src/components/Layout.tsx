@@ -1,6 +1,5 @@
 import { Link, NavLink, Outlet } from 'react-router-dom'
 import { useAuth } from '../lib/auth'
-import { LanguageSwitcher } from '../lib/i18n'
 
 function Logo({ size = 24 }: { size?: number }) {
   const tick = 'absolute bg-ipsc-accent'
@@ -49,8 +48,6 @@ export function Layout() {
             <NavLink to="/rules" className={cls}>Regras</NavLink>
             {session && <NavLink to="/score-entry" className={cls}>Resultados</NavLink>}
             {session && <NavLink to="/manage" className={cls}>Gerir</NavLink>}
-
-            <LanguageSwitcher />
 
             {session
               ? (
