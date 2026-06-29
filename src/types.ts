@@ -26,6 +26,7 @@ export interface Tournament {
   event_date: string // 'YYYY-MM-DD'
   enroll_start: string | null // 'YYYY-MM-DD' — enrollment opens
   enroll_end: string | null // 'YYYY-MM-DD' — enrollment closes
+  capacity: number | null // max enrollments (lotação); null = no limit
   stage_names: string[]
   stage_targets: number[] // parallel to stage_names; index i = target count for stage i+1
   single_weapon_seconds_per_change: number
