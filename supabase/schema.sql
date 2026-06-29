@@ -1,4 +1,5 @@
 -- ⚠️ CLEAN RESET — run on a project with no real data. Drops existing tables.
+drop table if exists public.stage_layouts cascade;
 drop table if exists public.stage_results cascade;
 drop table if exists public.tournament_players cascade;
 drop table if exists public.tournament_settings cascade;
@@ -68,12 +69,22 @@ create table public.stage_results (
   unique (tournament_id, player_id, stage)
 );
 
+-- Stage layouts (placed elements per stage)
+create table public.stage_layouts (
+  tournament_id uuid not null references public.tournaments(id) on delete cascade,
+  stage int not null check (stage >= 1),
+  items jsonb not null default '[]'::jsonb,
+  updated_at timestamptz not null default now(),
+  primary key (tournament_id, stage)
+);
+
 -- RLS: public read, authenticated write
 alter table public.players enable row level security;
 alter table public.judges enable row level security;
 alter table public.tournaments enable row level security;
 alter table public.tournament_players enable row level security;
 alter table public.stage_results enable row level security;
+alter table public.stage_layouts enable row level security;
 
 create policy "public read players" on public.players for select using (true);
 create policy "auth write players" on public.players for all
@@ -93,4 +104,8 @@ create policy "auth write enroll" on public.tournament_players for all
 
 create policy "public read results" on public.stage_results for select using (true);
 create policy "auth write results" on public.stage_results for all
+  using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
+
+create policy "public read stage_layouts" on public.stage_layouts for select using (true);
+create policy "auth write stage_layouts" on public.stage_layouts for all
   using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');

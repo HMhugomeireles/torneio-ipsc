@@ -61,3 +61,15 @@ export interface StageResult {
 
 // Input shape used when creating/updating a result (no server-managed fields)
 export type StageResultInput = Omit<StageResult, 'id' | 'created_at' | 'updated_at'>
+
+// A placed element in a stage layout (canvas coordinates in px).
+export interface StageLayoutItem {
+  id: number
+  type: string // 'zonas' | 'limitado' | 'proibido' | 'metalico' | 'final' | 'zona' | 'inicio' | 'parede' | 'arma' | 'texto'
+  x: number
+  y: number
+  w: number
+  h: number
+  text?: string // for 'texto' elements
+  weapon?: 'primary' | 'secondary' // for sectors (zona / inicio)
+}

@@ -62,7 +62,7 @@ function AdminSubnav({ pathname }: { pathname: string }) {
 export function Layout() {
   const { session, signOut } = useAuth()
   const { pathname } = useLocation()
-  const isAdmin = pathname === '/score-entry' || pathname === '/manage'
+  const isAdmin = pathname.startsWith('/manage') || pathname.startsWith('/score-entry')
   return (
     <div className="flex min-h-screen flex-col bg-ipsc-bg font-saira text-ipsc-text">
       {/* ---------- nav ---------- */}

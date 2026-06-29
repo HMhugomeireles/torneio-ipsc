@@ -1,5 +1,5 @@
 import { supabase } from './supabase'
-import type { Enrollment, EnrollmentStatus, Player, Judge, StageResult, StageResultInput, Tournament, TournamentInput } from '../types'
+import type { Enrollment, EnrollmentStatus, Player, Judge, StageLayoutItem, StageResult, StageResultInput, Tournament, TournamentInput } from '../types'
 
 // ---------- Players (global roster) ----------
 export async function getPlayers(): Promise<Player[]> {
@@ -128,4 +128,17 @@ export async function getStageResultCount(tournamentId: string, stage: number): 
     .eq('tournament_id', tournamentId).eq('stage', stage)
   if (error) throw error
   return count ?? 0
+}
+
+// ---------- Stage layouts ----------
+export async function getStageLayout(tournamentId: string, stage: number): Promise<StageLayoutItem[]> {
+  const { data, error } = await supabase.from('stage_layouts')
+    .select('items').eq('tournament_id', tournamentId).eq('stage', stage).maybeSingle()
+  if (error) throw error
+  return (data?.items as StageLayoutItem[] | undefined) ?? []
+}
+export async function saveStageLayout(tournamentId: string, stage: number, items: StageLayoutItem[]): Promise<void> {
+  const { error } = await supabase.from('stage_layouts')
+    .upsert({ tournament_id: tournamentId, stage, items, updated_at: new Date().toISOString() }, { onConflict: 'tournament_id,stage' })
+  if (error) throw error
 }
