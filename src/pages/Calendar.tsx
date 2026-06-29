@@ -89,17 +89,19 @@ export default function Calendar() {
                   <div className="grid grid-cols-2 gap-2.5 md:grid-cols-4">
                     {c.t.stage_names.map((name, i) => {
                       const changes = c.t.stage_weapon_changes[i] ?? 0
+                      const targets = c.t.stage_targets?.[i] ?? 0
                       return (
                         <div key={i} className="flex items-center justify-between gap-2 rounded-[5px] border border-ipsc-line bg-ipsc-bg p-3.5">
                           <div className="min-w-0">
                             <div className="font-saira-cond text-[18px] font-bold leading-none text-ipsc-text">Stage {String(i + 1).padStart(2, '0')}</div>
                             <div className="font-jet mt-1.5 truncate text-[10px] text-ipsc-muted">{name}</div>
+                            <div className="font-jet mt-1 text-[10px] text-ipsc-muted2">{changes} troca{changes === 1 ? '' : 's'}</div>
                           </div>
                           <span
                             className="font-jet shrink-0 text-[9px] font-bold uppercase tracking-[0.1em]"
-                            style={{ color: changes > 0 ? '#e8732a' : '#7a7f7a' }}
+                            style={{ color: targets > 0 ? '#e8732a' : '#7a7f7a' }}
                           >
-                            {changes > 0 ? `${changes} troca${changes === 1 ? '' : 's'}` : '—'}
+                            {targets} {targets === 1 ? 'alvo' : 'alvos'}
                           </span>
                         </div>
                       )
