@@ -24,9 +24,9 @@ export default function Rules() {
       </div>
 
       <p className="font-saira text-ipsc-muted2">
-        4 etapas. Cada etapa é pontuada por <b className="text-ipsc-text">Fator de Acerto</b> = Pontos ÷ Tempo.
-        Os pontos da etapa dão 100 ao melhor Fator de Acerto e proporcional aos restantes.
-        A classificação geral é a soma dos pontos das 4 etapas.
+        Cada estágio é pontuado por <b className="text-ipsc-text">Fator de Acerto</b> = Pontos ÷ Tempo.
+        Os pontos do estágio dão 100 ao melhor Fator de Acerto e proporcional aos restantes.
+        A classificação geral é a soma dos pontos de todos os estágios.
       </p>
 
       <section className="flex flex-col gap-3">
@@ -67,7 +67,16 @@ export default function Rules() {
             </tbody>
           </table>
         </div>
-        <p className="font-saira text-[14px] text-ipsc-muted2">Arma única: uma penalização de tempo adicionada ao tempo da etapa (valor definido pela organização).</p>
+      </section>
+
+      <section className="flex flex-col gap-3">
+        <h2 className="font-saira-cond text-[22px] font-bold">Arma única</h2>
+        <p className="font-saira text-[14px] text-ipsc-muted2">
+          Cada estágio que exija troca de arma da primária para a secundária adiciona <b className="text-ipsc-text">10 segundos</b> ao tempo final por cada troca necessária.
+        </p>
+        <p className="font-saira text-[14px] text-ipsc-muted2">
+          Exemplo: um estágio com 2 trocas de arma tem 2 × 10s = <b className="text-ipsc-text">20 segundos</b> de penalização.
+        </p>
       </section>
     </div>
   )

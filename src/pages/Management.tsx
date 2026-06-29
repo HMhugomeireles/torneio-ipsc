@@ -37,6 +37,13 @@ export default function Management() {
   const [playerName, setPlayerName] = useState('')
   const [judgeName, setJudgeName] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const [toast, setToast] = useState<{ kind: 'success' | 'error'; msg: string } | null>(null)
+
+  useEffect(() => {
+    if (!toast) return
+    const id = setTimeout(() => setToast(null), 3500)
+    return () => clearTimeout(id)
+  }, [toast])
 
   async function reload() {
     try {
@@ -83,11 +90,32 @@ export default function Management() {
     if (!draft) return
     await run(async () => { await data.updateTournament(draft.id, patch) })
   }
+  async function saveAndClose() {
+    if (!draft) return
+    try {
+      await data.updateTournament(draft.id, {
+        name: draft.name,
+        event_date: draft.event_date,
+        enroll_start: draft.enroll_start,
+        enroll_end: draft.enroll_end,
+        stage_names: draft.stage_names,
+        stage_targets: draft.stage_targets,
+        stage_weapon_changes: draft.stage_weapon_changes,
+        single_weapon_seconds_per_change: draft.single_weapon_seconds_per_change,
+      })
+      setToast({ kind: 'success', msg: 'Torneio guardado.' })
+      setSelectedId('')
+    } catch (e) {
+      setToast({ kind: 'error', msg: 'Erro ao guardar: ' + String(e) })
+    }
+  }
   // stages
   async function addStage() {
     if (!draft) return
+    const targets = draft.stage_names.map((_, i) => draft.stage_targets?.[i] ?? 0)
     await saveDraft({
       stage_names: [...draft.stage_names, `Stage ${draft.stage_names.length + 1}`],
+      stage_targets: [...targets, 0],
       stage_weapon_changes: [...draft.stage_weapon_changes, 0],
     })
   }
@@ -99,6 +127,7 @@ export default function Management() {
       if (n > 0) { setError('Não é possível remover um stage com resultados registados.'); return }
       await data.updateTournament(draft.id, {
         stage_names: draft.stage_names.slice(0, -1),
+        stage_targets: draft.stage_names.slice(0, -1).map((_, i) => draft.stage_targets?.[i] ?? 0),
         stage_weapon_changes: draft.stage_weapon_changes.slice(0, -1),
       })
     })
@@ -212,14 +241,17 @@ export default function Management() {
             <section className="ipsc-panel p-4">
               <div className="mb-3 flex items-center justify-between gap-3">
                 <h2 className="font-saira-cond text-[22px] font-bold">Editar — {draft.name}</h2>
-                <button onClick={() => setSelectedId('')} className={ghostBtn}>Fechar</button>
+                <div className="flex gap-2">
+                  {!past && <button onClick={saveAndClose} className={accentBtn}>Guardar</button>}
+                  <button onClick={() => setSelectedId('')} className={ghostBtn}>Fechar</button>
+                </div>
               </div>
               {past ? (
                 <div className="flex flex-col gap-2 font-saira text-ipsc-text">
                   <p className="ipsc-label normal-case tracking-normal text-ipsc-muted">Este torneio já passou e está bloqueado (só leitura).</p>
                   <p>Data: <span className="text-ipsc-muted2">{draft.event_date}</span></p>
                   <p>Inscrições: <span className="text-ipsc-muted2">{draft.enroll_start ?? '—'} → {draft.enroll_end ?? '—'}</span></p>
-                  <p>Stages: <span className="text-ipsc-muted2">{draft.stage_names.map((n, i) => `${n} (${draft.stage_weapon_changes[i] ?? 0} trocas)`).join(', ')}</span></p>
+                  <p>Stages: <span className="text-ipsc-muted2">{draft.stage_names.map((n, i) => `${n} (${draft.stage_targets?.[i] ?? 0} alvos, ${draft.stage_weapon_changes[i] ?? 0} trocas)`).join(', ')}</span></p>
                   <p>Segundos por troca de arma: <span className="text-ipsc-muted2">{draft.single_weapon_seconds_per_change}</span></p>
                 </div>
               ) : (
@@ -253,20 +285,28 @@ export default function Management() {
 
                   <div>
                     <div className="ipsc-label mb-1.5">Stages</div>
+                    <div className="mb-1 flex gap-2">
+                      <span className="font-jet flex-1 text-[10px] uppercase tracking-[0.14em] text-ipsc-muted">Nome do stage</span>
+                      <span className="font-jet w-24 text-[10px] uppercase tracking-[0.14em] text-ipsc-muted">Alvos</span>
+                      <span className="font-jet w-24 text-[10px] uppercase tracking-[0.14em] text-ipsc-muted">Trocas</span>
+                    </div>
                     <div className="grid gap-2">
                       {draft.stage_names.map((name, i) => (
                         <div key={i} className="flex gap-2">
                           <input className="ipsc-input flex-1" value={name}
                             onChange={e => { const next = [...draft.stage_names]; next[i] = e.target.value; patchDraft({ stage_names: next }) }}
                             onBlur={() => saveDraft({ stage_names: draft.stage_names })} />
-                          <input type="number" min="0" className="ipsc-input w-28" title="Trocas de arma"
+                          <input type="number" min="0" className="ipsc-input w-24" title="Número de alvos"
+                            value={draft.stage_targets?.[i] ?? 0}
+                            onChange={e => { const n = Number(e.target.value); const v = Number.isFinite(n) && n >= 0 ? n : 0; const next = draft.stage_names.map((_, idx) => idx === i ? v : (draft.stage_targets?.[idx] ?? 0)); patchDraft({ stage_targets: next }) }}
+                            onBlur={() => saveDraft({ stage_targets: draft.stage_targets })} />
+                          <input type="number" min="0" className="ipsc-input w-24" title="Trocas de arma"
                             value={draft.stage_weapon_changes[i] ?? 0}
                             onChange={e => { const n = Number(e.target.value); const v = Number.isFinite(n) && n >= 0 ? n : 0; const next = draft.stage_names.map((_, idx) => idx === i ? v : (draft.stage_weapon_changes[idx] ?? 0)); patchDraft({ stage_weapon_changes: next }) }}
                             onBlur={() => saveDraft({ stage_weapon_changes: draft.stage_weapon_changes })} />
                         </div>
                       ))}
                     </div>
-                    <div className="font-jet mt-1.5 text-[10px] uppercase tracking-[0.14em] text-ipsc-muted">Nome do stage · trocas de arma</div>
                     <div className="mt-2 flex gap-2">
                       <button onClick={addStage} className={accentBtn}>Adicionar stage</button>
                       {draft.stage_names.length > 1 && <button onClick={removeLastStage} className={dangerBtn}>Remover último</button>}
@@ -391,6 +431,19 @@ export default function Management() {
                 ))}
               </div>
             )}
+        </div>
+      )}
+
+      {/* toast */}
+      {toast && (
+        <div
+          className="font-jet fixed bottom-6 left-1/2 z-50 -translate-x-1/2 rounded-[6px] border px-5 py-3 text-[12px] font-bold uppercase tracking-[0.1em] shadow-[0_10px_40px_rgba(0,0,0,0.5)]"
+          style={toast.kind === 'success'
+            ? { color: '#6fae84', borderColor: '#16321f', background: '#0a1810' }
+            : { color: '#e0524a', borderColor: '#3a1d1b', background: '#180c0b' }}
+          role="status"
+        >
+          {toast.msg}
         </div>
       )}
     </div>

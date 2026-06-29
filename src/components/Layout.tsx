@@ -31,8 +31,8 @@ function cls({ isActive }: { isActive: boolean }) {
 }
 
 const adminTabs = [
-  { label: 'Registo resultados', to: '/score-entry', match: (p: string) => p === '/score-entry' },
   { label: 'Manager', to: '/manage', match: (p: string) => p === '/manage' },
+  { label: 'Registo resultados', to: '/score-entry', match: (p: string) => p === '/score-entry' },
 ]
 
 function AdminSubnav({ pathname }: { pathname: string }) {
@@ -78,7 +78,7 @@ export function Layout() {
             <NavLink to="/calendario" className={cls}>Calendário</NavLink>
             <NavLink to="/rules" className={cls}>Regras</NavLink>
             {session && (
-              <Link to="/score-entry" className={`${navLink} ${isAdmin ? 'text-ipsc-accent' : 'text-ipsc-muted2 hover:text-ipsc-text'}`}>Gerir</Link>
+              <Link to="/manage" className={`${navLink} ${isAdmin ? 'text-ipsc-accent' : 'text-ipsc-muted2 hover:text-ipsc-text'}`}>Gerir</Link>
             )}
 
             {session
