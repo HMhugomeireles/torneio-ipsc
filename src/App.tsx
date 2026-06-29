@@ -8,6 +8,7 @@ import Rules from './pages/Rules'
 import Calendar from './pages/Calendar'
 import ScoreEntry from './pages/ScoreEntry'
 import Management from './pages/Management'
+import StageLayout from './pages/StageLayout'
 import Login from './pages/Login'
 
 export default function App() {
@@ -22,6 +23,7 @@ export default function App() {
         <Route path="login" element={<Login />} />
         <Route path="score-entry" element={<ProtectedRoute><ScoreEntry /></ProtectedRoute>} />
         <Route path="manage" element={<ProtectedRoute><Management /></ProtectedRoute>} />
+        <Route path="manage/stage-layout/:id/:stage" element={<ProtectedRoute><StageLayout /></ProtectedRoute>} />
       </Route>
     </Routes>
   )

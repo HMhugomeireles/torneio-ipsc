@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import type { Enrollment, EnrollmentStatus, Player, Judge, Tournament } from '../types'
 import * as data from '../lib/data'
 import { isPast, todayISO } from '../lib/dates'
@@ -317,6 +318,7 @@ export default function Management() {
                             value={draft.stage_weapon_changes[i] ?? 0}
                             onChange={e => { const n = Number(e.target.value); const v = Number.isFinite(n) && n >= 0 ? n : 0; const next = draft.stage_names.map((_, idx) => idx === i ? v : (draft.stage_weapon_changes[idx] ?? 0)); patchDraft({ stage_weapon_changes: next }) }}
                             onBlur={() => saveDraft({ stage_weapon_changes: draft.stage_weapon_changes })} />
+                          <Link to={`/manage/stage-layout/${draft.id}/${i + 1}`} title="Editar layout" className="font-jet flex shrink-0 items-center rounded-[4px] border border-ipsc-line2 px-3 text-[10px] font-bold uppercase tracking-[0.1em] text-ipsc-muted2 transition-colors hover:text-ipsc-text">Layout</Link>
                         </div>
                       ))}
                     </div>
