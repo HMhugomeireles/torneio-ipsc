@@ -1,23 +1,20 @@
-import { useEffect, useState } from 'react'
-import { useParams, Link } from 'react-router-dom'
-import type { Player, StageResult, Tournament } from '../types'
+import { Link, useLoaderData, useParams, type LoaderFunctionArgs } from 'react-router-dom'
 import * as data from '../lib/data'
 import { rankStage } from '../lib/scoring'
 
+export async function loader({ params }: LoaderFunctionArgs) {
+  const id = params.id!
+  const [tournament, results, players] = await Promise.all([
+    data.getTournament(id),
+    data.getResultsForTournament(id),
+    data.getEnrolledPlayers(id),
+  ])
+  return { tournament, results, players }
+}
+
 export default function StageRankings() {
   const { id } = useParams()
-  const [tournament, setTournament] = useState<Tournament | null>(null)
-  const [results, setResults] = useState<StageResult[]>([])
-  const [players, setPlayers] = useState<Player[]>([])
-
-  useEffect(() => {
-    if (!id) return
-    (async () => {
-      setTournament(await data.getTournament(id))
-      setResults(await data.getResultsForTournament(id))
-      setPlayers(await data.getEnrolledPlayers(id))
-    })()
-  }, [id])
+  const { tournament, results, players } = useLoaderData() as Awaited<ReturnType<typeof loader>>
 
   const nameOf = (pid: string) => players.find(p => p.id === pid)?.name ?? '—'
   const count = tournament?.stage_names.length ?? 0

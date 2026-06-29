@@ -1,6 +1,5 @@
-import { useEffect, useMemo, useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
-import type { Tournament } from '../types'
+import { useEffect, useMemo } from 'react'
+import { Link, useLoaderData, useLocation } from 'react-router-dom'
 import * as data from '../lib/data'
 import { championshipRanking, type ChampionshipRow } from '../lib/scoring'
 import { isPast, todayISO } from '../lib/dates'
@@ -14,35 +13,29 @@ const MEDAL: Record<number, { medal: string; cardBg: string; cardBorder: string;
 
 const label = 'font-jet font-semibold uppercase'
 
-export default function Home() {
-  const [tournaments, setTournaments] = useState<Tournament[]>([])
-  const [champRows, setChampRows] = useState<ChampionshipRow[]>([])
-  const [shooters, setShooters] = useState<Record<string, number>>({})
-  const [stagesByPlayer, setStagesByPlayer] = useState<Record<string, number>>({})
-  const { hash } = useLocation()
+export async function loader() {
+  const ts = await data.getTournaments()
+  const all = await data.getAllResults()
+  const entries = await Promise.all(
+    ts.map(async t => ({ t, players: await data.getEnrolledPlayers(t.id), results: all.filter(r => r.tournament_id === t.id) })),
+  )
+  const champRows = championshipRanking(entries.map(e => ({ results: e.results, players: e.players })))
+  const shooters = Object.fromEntries(entries.map(e => [e.t.id, e.players.length]))
+  const stagesByPlayer: Record<string, number> = {}
+  for (const r of all) stagesByPlayer[r.player_id] = (stagesByPlayer[r.player_id] ?? 0) + 1
+  return { tournaments: ts, champRows, shooters, stagesByPlayer }
+}
 
-  useEffect(() => {
-    (async () => {
-      const ts = await data.getTournaments()
-      const all = await data.getAllResults()
-      const entries = await Promise.all(
-        ts.map(async t => ({ t, players: await data.getEnrolledPlayers(t.id), results: all.filter(r => r.tournament_id === t.id) })),
-      )
-      setTournaments(ts)
-      setChampRows(championshipRanking(entries.map(e => ({ results: e.results, players: e.players }))))
-      setShooters(Object.fromEntries(entries.map(e => [e.t.id, e.players.length])))
-      const sbp: Record<string, number> = {}
-      for (const r of all) sbp[r.player_id] = (sbp[r.player_id] ?? 0) + 1
-      setStagesByPlayer(sbp)
-    })()
-  }, [])
+export default function Home() {
+  const { tournaments, champRows, shooters, stagesByPlayer } = useLoaderData() as Awaited<ReturnType<typeof loader>>
+  const { hash } = useLocation()
 
   // Scroll to #ranking / #calendario when navigated to via the nav links.
   useEffect(() => {
     if (!hash) return
     const el = document.getElementById(hash.slice(1))
     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
-  }, [hash, tournaments, champRows])
+  }, [hash])
 
   const today = todayISO()
   const season = tournaments.reduce((y, t) => Math.max(y, +fmtYear(t.event_date)), +fmtYear(today))
@@ -50,12 +43,13 @@ export default function Home() {
   const { stats, calendar } = useMemo(() => {
     const totalStages = tournaments.reduce((a, t) => a + (t.stage_names?.length ?? 0), 0)
     const totalShooters = Object.values(shooters).reduce((a, b) => a + b, 0)
+    const ordered = [...tournaments].sort((a, b) => a.event_date.localeCompare(b.event_date))
     const past = tournaments.filter(t => isPast(t.event_date, today))
-    const upcoming = [...tournaments].filter(t => !isPast(t.event_date, today)).sort((a, b) => a.event_date.localeCompare(b.event_date))
+    const upcoming = ordered.filter(t => !isPast(t.event_date, today))
     const nextId = upcoming[0]?.id
     const nextDate = upcoming[0]?.event_date
 
-    const calendar = tournaments.map((t, i) => ({
+    const calendar = ordered.map((t, i) => ({
       t,
       n: String(i + 1).padStart(2, '0'),
       stages: t.stage_names?.length ?? 0,

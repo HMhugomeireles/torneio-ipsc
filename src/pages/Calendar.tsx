@@ -1,30 +1,25 @@
-import { useEffect, useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
-import type { Tournament } from '../types'
+import { useMemo } from 'react'
+import { Link, useLoaderData } from 'react-router-dom'
 import * as data from '../lib/data'
 import { isPast, todayISO } from '../lib/dates'
 import { STATUS, enrollmentBadge, fmtFull, fmtYear, statusOf } from '../lib/format'
 
-export default function Calendar() {
-  const [tournaments, setTournaments] = useState<Tournament[]>([])
-  const [shooters, setShooters] = useState<Record<string, number>>({})
+export async function loader() {
+  const ts = await data.getTournaments()
+  const counts = await Promise.all(ts.map(async t => [t.id, (await data.getEnrolledPlayers(t.id)).length] as const))
+  return { tournaments: ts, shooters: Object.fromEntries(counts) }
+}
 
-  useEffect(() => {
-    (async () => {
-      const ts = await data.getTournaments()
-      setTournaments(ts)
-      const counts = await Promise.all(ts.map(async t => [t.id, (await data.getEnrolledPlayers(t.id)).length] as const))
-      setShooters(Object.fromEntries(counts))
-    })()
-  }, [])
+export default function Calendar() {
+  const { tournaments, shooters } = useLoaderData() as Awaited<ReturnType<typeof loader>>
 
   const today = todayISO()
   const season = tournaments.reduce((y, t) => Math.max(y, +fmtYear(t.event_date)), +fmtYear(today))
 
   const cards = useMemo(() => {
-    const upcoming = [...tournaments].filter(t => !isPast(t.event_date, today)).sort((a, b) => a.event_date.localeCompare(b.event_date))
-    const nextId = upcoming[0]?.id
-    return tournaments.map((t, i) => ({
+    const ordered = [...tournaments].sort((a, b) => a.event_date.localeCompare(b.event_date))
+    const nextId = ordered.find(t => !isPast(t.event_date, today))?.id
+    return ordered.map((t, i) => ({
       t,
       n: String(i + 1).padStart(2, '0'),
       stages: t.stage_names?.length ?? 0,

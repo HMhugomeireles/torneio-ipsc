@@ -1,30 +1,29 @@
-import { Routes, Route } from 'react-router-dom'
+import { createBrowserRouter } from 'react-router-dom'
 import { Layout } from './components/Layout'
 import { ProtectedRoute } from './lib/auth'
-import Home from './pages/Home'
-import OverallRanking from './pages/OverallRanking'
-import StageRankings from './pages/StageRankings'
+import Home, { loader as homeLoader } from './pages/Home'
+import OverallRanking, { loader as overallLoader } from './pages/OverallRanking'
+import StageRankings, { loader as stagesLoader } from './pages/StageRankings'
+import Calendar, { loader as calendarLoader } from './pages/Calendar'
 import Rules from './pages/Rules'
-import Calendar from './pages/Calendar'
 import ScoreEntry from './pages/ScoreEntry'
 import Management from './pages/Management'
 import StageLayout from './pages/StageLayout'
 import Login from './pages/Login'
 
-export default function App() {
-  return (
-    <Routes>
-      <Route element={<Layout />}>
-        <Route index element={<Home />} />
-        <Route path="tournament/:id" element={<OverallRanking />} />
-        <Route path="tournament/:id/stages" element={<StageRankings />} />
-        <Route path="calendario" element={<Calendar />} />
-        <Route path="rules" element={<Rules />} />
-        <Route path="login" element={<Login />} />
-        <Route path="score-entry" element={<ProtectedRoute><ScoreEntry /></ProtectedRoute>} />
-        <Route path="manage" element={<ProtectedRoute><Management /></ProtectedRoute>} />
-        <Route path="manage/stage-layout/:id/:stage" element={<ProtectedRoute><StageLayout /></ProtectedRoute>} />
-      </Route>
-    </Routes>
-  )
-}
+export const router = createBrowserRouter([
+  {
+    element: <Layout />,
+    children: [
+      { index: true, element: <Home />, loader: homeLoader },
+      { path: 'tournament/:id', element: <OverallRanking />, loader: overallLoader },
+      { path: 'tournament/:id/stages', element: <StageRankings />, loader: stagesLoader },
+      { path: 'calendario', element: <Calendar />, loader: calendarLoader },
+      { path: 'rules', element: <Rules /> },
+      { path: 'login', element: <Login /> },
+      { path: 'score-entry', element: <ProtectedRoute><ScoreEntry /></ProtectedRoute> },
+      { path: 'manage', element: <ProtectedRoute><Management /></ProtectedRoute> },
+      { path: 'manage/stage-layout/:id/:stage', element: <ProtectedRoute><StageLayout /></ProtectedRoute> },
+    ],
+  },
+])
