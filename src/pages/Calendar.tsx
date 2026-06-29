@@ -73,7 +73,7 @@ export default function Calendar() {
                     </div>
                     <div className="font-jet flex flex-wrap gap-x-6 gap-y-1.5 text-[12px] tracking-[0.04em] text-ipsc-muted2">
                       <span>▦ {c.stages} stages</span>
-                      <span>◍ {c.shooters} atiradores</span>
+                      <span>◍ {c.shooters}{c.t.capacity != null ? ` / ${c.t.capacity}` : ''} atiradores</span>
                     </div>
                   </div>
 

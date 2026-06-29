@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import type { Enrollment, Player, Judge, Tournament } from '../types'
+import type { Enrollment, EnrollmentStatus, Player, Judge, Tournament } from '../types'
 import * as data from '../lib/data'
 import { isPast, todayISO } from '../lib/dates'
 import { initials, regCode } from '../lib/format'
@@ -7,7 +7,6 @@ import { initials, regCode } from '../lib/format'
 const accentBtn = 'ipsc-btn'
 const dangerBtn = 'ipsc-btn-danger'
 const ghostBtn = 'ipsc-btn-ghost'
-const confirmBtn = 'font-jet cursor-pointer rounded-[3px] bg-ipsc-accent px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.1em] text-ipsc-bg transition-colors hover:bg-ipsc-text'
 
 type Tab = 'torneios' | 'inscricoes' | 'atiradores' | 'juizes'
 const TABS: { key: Tab; label: string }[] = [
@@ -98,6 +97,7 @@ export default function Management() {
         event_date: draft.event_date,
         enroll_start: draft.enroll_start,
         enroll_end: draft.enroll_end,
+        capacity: draft.capacity,
         stage_names: draft.stage_names,
         stage_targets: draft.stage_targets,
         stage_weapon_changes: draft.stage_weapon_changes,
@@ -145,9 +145,9 @@ export default function Management() {
       setEnrollNew('')
     })
   }
-  async function confirmEnroll(pid: string) {
+  async function toggleEnroll(pid: string, status: EnrollmentStatus) {
     if (!enrollTid) return
-    await run(async () => { await data.setEnrollmentStatus(enrollTid, pid, 'confirmed') })
+    await run(async () => { await data.setEnrollmentStatus(enrollTid, pid, status === 'confirmed' ? 'provisional' : 'confirmed') })
   }
   async function removeEnroll(pid: string) {
     if (!enrollTid) return
@@ -164,6 +164,13 @@ export default function Management() {
   }
 
   const enrollAvailable = players.filter(p => !enrollments.some(e => e.player.id === p.id))
+  const enrollT = tournaments.find(t => t.id === enrollTid) ?? null
+  const enrollConfirmed = enrollments.filter(e => e.status === 'confirmed').length
+  const enrollProvisional = enrollments.length - enrollConfirmed
+  const enrollCapacity = enrollT?.capacity ?? null
+  const enrollVacancies = enrollCapacity != null ? Math.max(0, enrollCapacity - enrollments.length) : null
+  const enrollPct = enrollCapacity && enrollCapacity > 0 ? Math.min(100, Math.round((enrollments.length / enrollCapacity) * 100)) : 0
+  const enrollOrdered = [...enrollments].sort((a, b) => (a.status === 'confirmed' ? 0 : 1) - (b.status === 'confirmed' ? 0 : 1))
   const tabCount = (k: Tab): number | null =>
     k === 'torneios' ? tournaments.length
       : k === 'atiradores' ? players.length
@@ -280,6 +287,12 @@ export default function Management() {
                           onChange={e => patchDraft({ enroll_end: e.target.value || null })}
                           onBlur={() => saveDraft({ enroll_end: draft.enroll_end })} />
                       </label>
+                      <label className="font-jet flex items-center gap-2 text-[11px] uppercase tracking-[0.1em] text-ipsc-muted2">
+                        Lotação
+                        <input type="number" min="0" className="ipsc-input w-24" placeholder="—" value={draft.capacity ?? ''}
+                          onChange={e => { const n = Number(e.target.value); patchDraft({ capacity: e.target.value === '' ? null : (Number.isFinite(n) && n >= 0 ? n : 0) }) }}
+                          onBlur={() => saveDraft({ capacity: draft.capacity })} />
+                      </label>
                     </div>
                   </div>
 
@@ -330,56 +343,100 @@ export default function Management() {
 
       {/* ---------- INSCRIÇÕES ---------- */}
       {tab === 'inscricoes' && (
-        <div className="flex flex-col gap-4">
-          <select className="ipsc-input" value={enrollTid} onChange={e => { setEnrollTid(e.target.value); setEnrollSel(''); setEnrollNew('') }}>
-            <option value="">— Escolher torneio —</option>
-            {tournaments.map(t => <option key={t.id} value={t.id}>{t.name} ({t.event_date})</option>)}
-          </select>
+        <div className="flex flex-col gap-5">
+          {/* tournament selector + stat tiles */}
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="rounded-[6px] border border-ipsc-line2 bg-ipsc-panel p-3.5">
+              <div className="font-jet mb-2 text-[9px] font-semibold uppercase tracking-[0.14em] text-ipsc-muted">Torneio ativo</div>
+              <select
+                className="font-saira-cond w-full cursor-pointer bg-transparent text-[18px] font-bold text-ipsc-text outline-none"
+                value={enrollTid}
+                onChange={e => { setEnrollTid(e.target.value); setEnrollSel(''); setEnrollNew('') }}
+              >
+                <option value="" className="bg-ipsc-panel">— Escolher —</option>
+                {tournaments.map(t => <option key={t.id} value={t.id} className="bg-ipsc-panel">{t.name} ({t.event_date})</option>)}
+              </select>
+            </div>
+            {enrollTid && [
+              { label: 'Confirmadas', value: enrollConfirmed, color: '#6fae84' },
+              { label: 'Provisórias', value: enrollProvisional, color: '#e8732a' },
+              { label: 'Vagas livres', value: enrollVacancies != null ? enrollVacancies : '—', color: '#fff' },
+            ].map(s => (
+              <div key={s.label} className="rounded-[6px] border border-ipsc-line bg-ipsc-panel p-3.5">
+                <div className="font-jet mb-2 text-[9px] font-semibold uppercase tracking-[0.14em] text-ipsc-muted">{s.label}</div>
+                <div className="font-saira-cond text-[28px] font-extrabold leading-none" style={{ color: s.color }}>{s.value}</div>
+              </div>
+            ))}
+          </div>
 
           {!enrollTid
             ? <p className="ipsc-label">Escolhe um torneio para gerir as inscrições.</p>
             : (
               <>
-                <div className="flex flex-wrap gap-2">
-                  <select className="ipsc-input flex-1" value={enrollSel} onChange={e => setEnrollSel(e.target.value)}>
-                    <option value="">— Inscrever atirador existente —</option>
-                    {enrollAvailable.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-                  </select>
-                  <button onClick={enrollExisting} className={accentBtn}>Inscrever (provisória)</button>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  <input className="ipsc-input flex-1" value={enrollNew} onChange={e => setEnrollNew(e.target.value)} placeholder="Novo atirador" />
-                  <button onClick={enrollNewPlayer} className={accentBtn}>Adicionar e inscrever</button>
+                {/* capacity bar */}
+                {enrollCapacity != null && (
+                  <div>
+                    <div className="mb-1.5 flex items-baseline justify-between">
+                      <span className="ipsc-label">Lotação</span>
+                      <span className="font-jet text-[10px] tracking-[0.08em] text-ipsc-muted">{enrollments.length} / {enrollCapacity} · {enrollPct}%</span>
+                    </div>
+                    <div className="h-1.5 overflow-hidden rounded-[4px] border border-ipsc-line bg-ipsc-panel">
+                      <div className="h-full bg-ipsc-accent" style={{ width: `${enrollPct}%` }} />
+                    </div>
+                  </div>
+                )}
+
+                {/* enroll a shooter */}
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="flex flex-col gap-2">
+                    <div className="ipsc-label">A · Atirador existente</div>
+                    <div className="flex gap-2">
+                      <select className="ipsc-input flex-1" value={enrollSel} onChange={e => setEnrollSel(e.target.value)}>
+                        <option value="">Selecionar atirador…</option>
+                        {enrollAvailable.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                      </select>
+                      <button onClick={enrollExisting} disabled={!enrollSel} className={`${accentBtn} disabled:cursor-not-allowed disabled:opacity-50`}>Inscrever</button>
+                    </div>
+                    <p className="font-jet text-[10px] text-ipsc-muted">Entra como inscrição provisória até confirmação.</p>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <div className="ipsc-label">B · Novo atirador</div>
+                    <div className="flex gap-2">
+                      <input className="ipsc-input flex-1" value={enrollNew} onChange={e => setEnrollNew(e.target.value)} placeholder="Nome do novo atirador" />
+                      <button onClick={enrollNewPlayer} className={accentBtn}>Adicionar</button>
+                    </div>
+                    <p className="font-jet text-[10px] text-ipsc-muted">Cria o atleta no sistema e inscreve-o de imediato.</p>
+                  </div>
                 </div>
 
-                {enrollments.length === 0
-                  ? <p className="ipsc-label">Sem inscrições neste torneio.</p>
-                  : (
-                    <div className="overflow-hidden rounded-[6px] border border-ipsc-line">
-                      {enrollments.map(e => {
-                        const conf = e.status === 'confirmed'
-                        return (
-                          <div key={e.player.id} className="flex flex-wrap items-center gap-3 border-b border-[#15180f] px-4 py-3.5 last:border-b-0">
-                            <div className="font-jet flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-full border border-[#262b22] bg-[#1a1e18] text-[11px] font-semibold text-ipsc-muted2">{initials(e.player.name)}</div>
-                            <div className="min-w-0 flex-1">
-                              <div className="text-[16px] font-semibold">{e.player.name}</div>
-                              <div className="font-jet text-[11px] text-ipsc-muted">{regCode(e.player.reg_no)}</div>
+                {/* enrolled list */}
+                <div>
+                  <div className="mb-2.5 flex items-center justify-between">
+                    <span className="ipsc-label">Atletas inscritos</span>
+                    <span className="font-jet text-[10px] uppercase tracking-[0.1em] text-ipsc-muted">Confirmadas primeiro</span>
+                  </div>
+                  {enrollOrdered.length === 0
+                    ? <div className="rounded-[6px] border border-dashed border-ipsc-line2 p-9 text-center font-jet text-[12px] text-ipsc-muted">Sem inscrições para este torneio.</div>
+                    : (
+                      <div className="grid gap-2.5">
+                        {enrollOrdered.map(e => {
+                          const conf = e.status === 'confirmed'
+                          return (
+                            <div key={e.player.id} className="flex flex-wrap items-center gap-3 rounded-[6px] border border-ipsc-line bg-ipsc-panel px-4 py-3.5" style={{ borderLeft: `3px solid ${conf ? '#3a6b4a' : '#e8732a'}` }}>
+                              <div className="font-jet flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-full border text-[12px] font-bold text-[#cfd2cc]" style={conf ? { background: '#0f1a13', borderColor: '#1d3324' } : { background: '#1a1109', borderColor: '#3a2417' }}>{initials(e.player.name)}</div>
+                              <div className="min-w-0 flex-1">
+                                <div className="font-saira-cond text-[19px] font-bold leading-tight">{e.player.name}</div>
+                                <div className="font-jet text-[11px] tracking-[0.06em] text-ipsc-muted">{regCode(e.player.reg_no)}</div>
+                              </div>
+                              <span className="font-jet rounded-[3px] border px-2.5 py-1.5 text-[9px] font-bold uppercase tracking-[0.12em]" style={conf ? { color: '#6fae84', borderColor: '#16321f', background: '#0a1810' } : { color: '#e8732a', borderColor: '#3a2417', background: '#170f0a' }}>{conf ? 'Confirmada' : 'Provisória'}</span>
+                              <button onClick={() => toggleEnroll(e.player.id, e.status)} className="font-jet cursor-pointer rounded-[4px] border px-3 py-2 text-[10px] font-bold uppercase tracking-[0.1em] transition-colors" style={conf ? { color: '#9aa09a', borderColor: '#2c322c' } : { color: '#6fae84', borderColor: '#16321f' }}>{conf ? 'Tornar prov.' : 'Confirmar'}</button>
+                              <button onClick={() => removeEnroll(e.player.id)} className={dangerBtn}>Remover</button>
                             </div>
-                            <span
-                              className="font-jet rounded-[3px] border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em]"
-                              style={conf
-                                ? { color: '#6fae84', borderColor: '#16321f', background: '#0a1810' }
-                                : { color: '#e8732a', borderColor: '#3a2417', background: '#170f0a' }}
-                            >
-                              {conf ? 'Confirmada' : 'Provisória'}
-                            </span>
-                            {!conf && <button onClick={() => confirmEnroll(e.player.id)} className={confirmBtn}>Confirmar</button>}
-                            <button onClick={() => removeEnroll(e.player.id)} className={dangerBtn}>Remover</button>
-                          </div>
-                        )
-                      })}
-                    </div>
-                  )}
+                          )
+                        })}
+                      </div>
+                    )}
+                </div>
               </>
             )}
         </div>

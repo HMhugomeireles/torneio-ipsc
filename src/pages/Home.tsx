@@ -125,7 +125,7 @@ export default function Home() {
                   </div>
                   <div className="hidden text-right md:block">
                     <div className="font-jet text-[13px] font-semibold text-[#cfd2cc]">{fmtFull(c.t.event_date)}</div>
-                    <div className="font-jet mt-1 text-[11px] font-medium text-ipsc-muted">{c.stages} STAGES · {c.shooters} ATIRADORES</div>
+                    <div className="font-jet mt-1 text-[11px] font-medium text-ipsc-muted">{c.stages} STAGES · {c.shooters}{c.t.capacity != null ? ` / ${c.t.capacity}` : ''} ATIRADORES</div>
                   </div>
                   <span
                     className="font-jet justify-self-end whitespace-nowrap rounded-[3px] border px-[11px] py-[7px] text-[10px] font-bold tracking-[0.14em]"

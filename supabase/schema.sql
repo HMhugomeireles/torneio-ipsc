@@ -28,6 +28,7 @@ create table public.tournaments (
   event_date date not null,
   enroll_start date,
   enroll_end date,
+  capacity int,
   stage_names jsonb not null default '["Stage 1","Stage 2","Stage 3","Stage 4"]'::jsonb,
   stage_targets jsonb not null default '[0,0,0,0]'::jsonb,
   single_weapon_seconds_per_change numeric not null default 10,
