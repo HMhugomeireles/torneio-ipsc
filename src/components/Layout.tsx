@@ -19,7 +19,7 @@ function Logo({ size = 24 }: { size?: number }) {
 
 function Wordmark({ size = 19 }: { size?: number }) {
   return (
-    <span className="font-saira-cond font-bold tracking-[0.06em]" style={{ fontSize: size }}>
+    <span className="font-saira-cond font-bold uppercase tracking-[0.06em]" style={{ fontSize: size }}>
       IPSC<span className="text-ipsc-accent">Airshuting</span>
     </span>
   )
