@@ -27,6 +27,7 @@ export interface Tournament {
   enroll_start: string | null // 'YYYY-MM-DD' — enrollment opens
   enroll_end: string | null // 'YYYY-MM-DD' — enrollment closes
   stage_names: string[]
+  stage_targets: number[] // parallel to stage_names; index i = target count for stage i+1
   single_weapon_seconds_per_change: number
   stage_weapon_changes: number[] // parallel to stage_names; index i = weapon changes for stage i+1
   created_at?: string
